@@ -16,6 +16,12 @@ Changelog:
 import PySimpleGUI as sg
 
 
+# RADIO TEXT/KEYs
+SINE = 'Sine'
+PULSE = 'Pulse'
+GROUP_ID = "RADIO1"
+
+
 def main():
     print("main")
 
@@ -24,8 +30,9 @@ def main():
 
     # Setup Layout
     layout = [[sg.Text('Choose a Wave Type (Sine or Pulse):')],
-              [sg.Radio("Sine", "RADIO1", default=True), sg.Radio('Pulse', "RADIO1")],
-              [sg.Button('Cancel')]
+              [sg.Radio(SINE, group_id=GROUP_ID, key=SINE, default=True),
+               sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
+              [sg.Button('Generate Waveform')]
               ]
 
     # Create Window
@@ -36,10 +43,12 @@ def main():
     # While Loop
     while True:
         event, values = window.read()
-        if event == sg.WIN_CLOSED or event == 'Cancel':
+        if event == sg.WIN_CLOSED:
             break
+        elif event == 'Generate Waveform':
+            print("You pressed Generate Waveform")
+            print(SINE, values[SINE])
 
-        print('You entered', values[0])
     #  Get event and values
     #  Check for events.
 
