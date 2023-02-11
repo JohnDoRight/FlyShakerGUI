@@ -10,7 +10,9 @@ GUI using Thomas Zimmerman's wave generator code for Dr. Divya Sitaraman's droso
 [Note: Put in Tom's CCC and IBM funding section here.]
 
 Changelog:
+2-11-2023: Added in sine/pulse specifications and radio.
 2-1-2023: Initial Creation
+
 """
 
 import PySimpleGUI as sg
@@ -84,14 +86,15 @@ def main():
             break
         elif event == 'Generate Waveform':
             print("You pressed Generate Waveform")
-            print(SINE, values[SINE])
-            print("Freq:", values[FREQ_KEY])
-            print("Amp:", values[AMP_KEY])
-            print("Duration:", values[DUR_KEY])
-            print("Burst Period:", values[BURST_SINE_KEY])
 
-            for key in PULSE_KEYS:
-                print(key, ":", values[key])
+            if values[SINE] == True:
+                print("Sine")
+                for key in SINE_KEYS:
+                    print(key, ":", values[key])
+            else:
+                print("Pulse")
+                for key in PULSE_KEYS:
+                    print(key, ":", values[key])
 
     #  Get event and values
     #  Check for events.
