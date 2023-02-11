@@ -30,7 +30,20 @@ DUR_KEY = "-DURATION-"
 DUR_DEFAULT = "1"
 BURST_SINE_KEY = "-BURST-"
 BURST_SINE_DEF = "1"
+SINE_KEYS = [FREQ_KEY, AMP_KEY, DUR_KEY, BURST_SINE_KEY]
 
+# PULSE SPECIFICATIONS
+WIDTH_KEY = "-PULSE WIDTH-"
+WIDTH_DEF = "1"
+PERIOD_KEY = "-PULSE PERIOD-"
+PERIOD_DEF = "1"
+AMP_P_KEY = "-PULSE AMPLITUDE-"
+AMP_P_DEF = "1"
+COUNT_KEY = "-PULSE COUNT-"
+COUNT_DEF = "1"
+BURST_P_KEY = "-PULSE BURST PERIOD-"
+BURST_P_DEF = "1"
+PULSE_KEYS = [WIDTH_KEY, PERIOD_KEY, AMP_P_KEY, COUNT_KEY, BURST_P_KEY]
 
 def main():
     print("main")
@@ -50,6 +63,11 @@ def main():
               [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_SINE_DEF, size=(4, 1), key=BURST_SINE_KEY)],
               [sg.HorizontalSeparator()],
               [sg.Text("Pulse Specifications:")],
+              [sg.Push(), sg.Text("Width (msec):"), sg.InputText(default_text=WIDTH_DEF, size=(4, 1), key=WIDTH_KEY)],
+              [sg.Push(), sg.Text("Period (msec):"), sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
+              [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
+              [sg.Push(), sg.Text("Count (1 to 32,000):"), sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
+              [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_P_DEF, size=(4, 1), key=BURST_P_KEY)],
               [sg.HorizontalSeparator()],
               [sg.Button('Generate Waveform')]
               ]
@@ -71,6 +89,9 @@ def main():
             print("Amp:", values[AMP_KEY])
             print("Duration:", values[DUR_KEY])
             print("Burst Period:", values[BURST_SINE_KEY])
+
+            for key in PULSE_KEYS:
+                print(key, ":", values[key])
 
     #  Get event and values
     #  Check for events.
