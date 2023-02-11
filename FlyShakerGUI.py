@@ -9,10 +9,15 @@ GUI using Thomas Zimmerman's wave generator code for Dr. Divya Sitaraman's droso
 
 [Note: Put in Tom's CCC and IBM funding section here.]
 
+TODO:
+-Do a number check for input boxes.
+-Put in sample image for waveforms to the right as a column
+-Put different sections into a frame
+-Disable input boxes based on Radio Sine/Pulse selection?
+
 Changelog:
 2-11-2023: Added in sine/pulse specifications and radio.
 2-1-2023: Initial Creation
-
 """
 
 import PySimpleGUI as sg
@@ -24,17 +29,19 @@ PULSE = 'Pulse'
 GROUP_ID = "RADIO1"
 
 # SINE SPECIFICATIONS
+# Note: "DEF" means "Default"
 FREQ_KEY = "-FREQ-"
-FREQ_DEFAULT = "10"
+FREQ_DEF = "10"
 AMP_KEY = "-AMP-"
-AMP_DEFAULT = "1"
+AMP_DEF = "1"
 DUR_KEY = "-DURATION-"
-DUR_DEFAULT = "1"
+DUR_DEF = "1"
 BURST_SINE_KEY = "-BURST-"
 BURST_SINE_DEF = "1"
 SINE_KEYS = [FREQ_KEY, AMP_KEY, DUR_KEY, BURST_SINE_KEY]
 
 # PULSE SPECIFICATIONS
+# Note: "P" means "Pulse"
 WIDTH_KEY = "-PULSE WIDTH-"
 WIDTH_DEF = "1"
 PERIOD_KEY = "-PULSE PERIOD-"
@@ -46,6 +53,7 @@ COUNT_DEF = "1"
 BURST_P_KEY = "-PULSE BURST PERIOD-"
 BURST_P_DEF = "1"
 PULSE_KEYS = [WIDTH_KEY, PERIOD_KEY, AMP_P_KEY, COUNT_KEY, BURST_P_KEY]
+
 
 def main():
     print("main")
@@ -59,9 +67,9 @@ def main():
                sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
               [sg.HorizontalSeparator()],
               [sg.Text("Sine Specifications:")],
-              [sg.Push(), sg.Text("Frequency (10 to 200 Hz):"), sg.InputText(default_text=FREQ_DEFAULT, size=(4, 1), key=FREQ_KEY)],
-              [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_DEFAULT, size=(4, 1), key=AMP_KEY)],
-              [sg.Push(), sg.Text("Duration (seconds):"), sg.InputText(default_text=DUR_DEFAULT, size=(4, 1), key=DUR_KEY)],
+              [sg.Push(), sg.Text("Frequency (10 to 200 Hz):"), sg.InputText(default_text=FREQ_DEF, size=(4, 1), key=FREQ_KEY)],
+              [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_DEF, size=(4, 1), key=AMP_KEY)],
+              [sg.Push(), sg.Text("Duration (seconds):"), sg.InputText(default_text=DUR_DEF, size=(4, 1), key=DUR_KEY)],
               [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_SINE_DEF, size=(4, 1), key=BURST_SINE_KEY)],
               [sg.HorizontalSeparator()],
               [sg.Text("Pulse Specifications:")],
