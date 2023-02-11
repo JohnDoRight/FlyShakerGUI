@@ -15,11 +15,21 @@ Changelog:
 
 import PySimpleGUI as sg
 
-
+# WAVETYPE SELECTION
 # RADIO TEXT/KEYs
 SINE = 'Sine'
 PULSE = 'Pulse'
 GROUP_ID = "RADIO1"
+
+# SINE SPECIFICATIONS
+FREQ_KEY = "-FREQ-"
+FREQ_DEFAULT = "10"
+AMP_KEY = "-AMP-"
+AMP_DEFAULT = "1"
+DUR_KEY = "-DURATION-"
+DUR_DEFAULT = "1"
+BURST_SINE_KEY = "-BURST-"
+BURST_SINE_DEF = "1"
 
 
 def main():
@@ -32,6 +42,15 @@ def main():
     layout = [[sg.Text('Choose a Wave Type (Sine or Pulse):')],
               [sg.Radio(SINE, group_id=GROUP_ID, key=SINE, default=True),
                sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
+              [sg.HorizontalSeparator()],
+              [sg.Text("Sine Specifications:")],
+              [sg.Push(), sg.Text("Frequency (10 to 200 Hz):"), sg.InputText(default_text=FREQ_DEFAULT, size=(4, 1), key=FREQ_KEY)],
+              [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_DEFAULT, size=(4, 1), key=AMP_KEY)],
+              [sg.Push(), sg.Text("Duration (seconds):"), sg.InputText(default_text=DUR_DEFAULT, size=(4, 1), key=DUR_KEY)],
+              [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_SINE_DEF, size=(4, 1), key=BURST_SINE_KEY)],
+              [sg.HorizontalSeparator()],
+              [sg.Text("Pulse Specifications:")],
+              [sg.HorizontalSeparator()],
               [sg.Button('Generate Waveform')]
               ]
 
@@ -48,6 +67,10 @@ def main():
         elif event == 'Generate Waveform':
             print("You pressed Generate Waveform")
             print(SINE, values[SINE])
+            print("Freq:", values[FREQ_KEY])
+            print("Amp:", values[AMP_KEY])
+            print("Duration:", values[DUR_KEY])
+            print("Burst Period:", values[BURST_SINE_KEY])
 
     #  Get event and values
     #  Check for events.
