@@ -20,7 +20,7 @@ Changelog:
 2-11-2023: Added in sine/pulse specifications and radio.
            Put sections in frames, spec/img to columns.
            Put in image loading that is OS independent, but untested on non-Windows.
-           Put in number check for input boxes,
+           Put in number check for input boxes
 2-1-2023: Initial Creation
 
 Sources for code ideas:
