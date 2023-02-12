@@ -11,11 +11,10 @@ GUI using Thomas Zimmerman's wave generator code for Dr. Divya Sitaraman's droso
 
 TODO:
 -Do a number check for input boxes.
--Put in sample image for waveforms to the right as a column
 -Disable input boxes based on Radio Sine/Pulse selection?
 
 Changelog:
-2-11-2023: Added in sine/pulse specifications and radio.
+2-11-2023: Added in sine/pulse specifications and radio. Put sections in frames, spec/img to columns.
 2-1-2023: Initial Creation
 
 Sources for code ideas:
@@ -65,30 +64,38 @@ def main():
     # Setup Theme
     sg.theme('TealMono')
 
-    sine_layout = [[sg.Push(), sg.Text("Frequency (10 to 200 Hz):"), sg.InputText(default_text=FREQ_DEF, size=(4, 1), key=FREQ_KEY)],
-                   [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_DEF, size=(4, 1), key=AMP_KEY)],
-                   [sg.Push(), sg.Text("Duration (seconds):"), sg.InputText(default_text=DUR_DEF, size=(4, 1), key=DUR_KEY)],
-                   [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_SINE_DEF, size=(4, 1), key=BURST_SINE_KEY)]
-                   ]
+    sine_col1_layout = [[sg.Push(), sg.Text("Frequency (10 to 200 Hz):"), sg.InputText(default_text=FREQ_DEF, size=(4, 1), key=FREQ_KEY)],
+                        [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_DEF, size=(4, 1), key=AMP_KEY)],
+                        [sg.Push(), sg.Text("Duration (seconds):"), sg.InputText(default_text=DUR_DEF, size=(4, 1), key=DUR_KEY)],
+                        [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_SINE_DEF, size=(4, 1), key=BURST_SINE_KEY)]
+                        ]
 
-    sine_frame = sg.Frame("Sine Specifications", layout=sine_layout)
+    sine_col2_img_layout = [[sg.Image("sine_wave.png")]]
 
-    pulse_layout = [[sg.Push(), sg.Text("Width (msec):"), sg.InputText(default_text=WIDTH_DEF, size=(4, 1), key=WIDTH_KEY)],
+    sine_col_layout = [[sg.Column(sine_col1_layout), sg.Column(sine_col2_img_layout)]]
+
+    sine_frame = sg.Frame("Sine Specifications", layout=sine_col_layout)
+
+    pulse_col1_layout = [[sg.Push(), sg.Text("Width (msec):"), sg.InputText(default_text=WIDTH_DEF, size=(4, 1), key=WIDTH_KEY)],
                     [sg.Push(), sg.Text("Period (msec):"), sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
                     [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
                     [sg.Push(), sg.Text("Count (1 to 32,000):"), sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
                     [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_P_DEF, size=(4, 1), key=BURST_P_KEY)]
                     ]
 
-    pulse_frame = sg.Frame("Pulse Specifications", layout=pulse_layout)
+    pulse_col2_img_layout = [[sg.Image("pulse_wave.png")]]
+
+    pulse_col_layout = [[sg.Column(pulse_col1_layout), sg.Column(pulse_col2_img_layout)]]
+
+    pulse_frame = sg.Frame("Pulse Specifications", layout=pulse_col_layout)
 
     # Setup Layout
     layout = [[sg.Text('Choose a Wave Type (Sine or Pulse):')],
               [sg.Radio(SINE, group_id=GROUP_ID, key=SINE, default=True),
                sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
-              [sine_frame, sg.Image("sine_wave.png")],
-              [pulse_frame, sg.Image("pulse_wave.png")],
-              [sg.Button('Generate Waveform')]
+              [sine_frame],
+              [pulse_frame],
+              [sg.Push(), sg.Button('Generate Waveform')]
               ]
 
     # Original Layout
