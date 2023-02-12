@@ -14,6 +14,7 @@ TODO:
 Possible solutions to that:
 https://www.pysimplegui.org/en/latest/cookbook/#recipe-collapsible-sections-visible-invisible-elements
 https://stackoverflow.com/questions/61006988/hiding-and-unhiding-text-input-and-filebrowse-in-pysimplegui
+https://www.pysimplegui.org/en/latest/call%20reference/#input-element
 
 Changelog:
 2-11-2023: Added in sine/pulse specifications and radio.
@@ -27,6 +28,8 @@ https://www.tutorialspoint.com/pysimplegui/pysimplegui_frame_element.htm
 https://www.pysimplegui.org/en/latest/cookbook/
 https://csveda.com/pysimplegui-column-and-frame/
 https://stackoverflow.com/questions/57596338/load-an-image-that-is-in-a-subfolder-using-pygame
+
+https://www.pysimplegui.org/en/latest/call%20reference/#input-element
 
 Possible solution for getting/setting cursor position
 https://stackoverflow.com/questions/65923933/pysimplegui-set-and-get-the-cursor-position-in-a-multiline-widget
@@ -174,6 +177,30 @@ def check_input_keys_for_non_digits(values, window):
 # ---- [END] FUNCTIONS FOR INTEGER CHECK IN INPUT BOXES -----
 
 
+# ---- [START] FUNCTIONS FOR Sine/Pulse input disabling -----
+def check_radio(window, values):
+
+    if values[SINE] == True:
+
+        # Enable Sine inputs
+        for key in SINE_KEYS:
+            window[key].update(disabled=False)
+
+        # Disable Pulse inputs
+        for key in PULSE_KEYS:
+            window[key].update(disabled=True)
+
+    else:
+        # Disable Sine inputs
+        for key in SINE_KEYS:
+            window[key].update(disabled=True)
+
+        # Enable Pulse inputs
+        for key in PULSE_KEYS:
+            window[key].update(disabled=False)
+# ---- [END] FUNCTIONS FOR Sine/Pulse input disabling -----
+
+
 def get_layout():
     # Separate function to create/get the layout for the GUI
 
@@ -194,7 +221,7 @@ def get_layout():
     sine_frame = sg.Frame("Sine Specifications", layout=sine_col_layout)
 
     # Pulse, Column 1
-    pulse_col1_layout = [[sg.Push(), sg.Text("Width (msec):"), sg.InputText(default_text=WIDTH_DEF, size=(4, 1), key=WIDTH_KEY)],
+    pulse_col1_layout = [[sg.Push(), sg.Text("Width (msec):"), sg.InputText(default_text=WIDTH_DEF, disabled=False, size=(4, 1), key=WIDTH_KEY)],
                          [sg.Push(), sg.Text("Period (msec):"), sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
                          [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
                          [sg.Push(), sg.Text("Count (1 to 32,000):"), sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
@@ -211,8 +238,8 @@ def get_layout():
     pulse_frame = sg.Frame("Pulse Specifications", layout=pulse_col_layout)
 
     # Setup Layout
-    layout = [[sg.Text('Choose a Wave Type (Sine or Pulse):')],
-              [sg.Radio(SINE, group_id=GROUP_ID, key=SINE, default=True),
+    layout = [[sg.Text('Choose a Wave Type (Sine or Pulse):'),
+               sg.Radio(SINE, group_id=GROUP_ID, key=SINE, default=True),
                sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
               [sine_frame],
               [pulse_frame],
@@ -226,7 +253,7 @@ def main():
     print("main")
 
     # Setup Theme
-    sg.theme('TealMono')
+    sg.theme('DarkGrey')
 
     # Create Window, call get_layout() to get layout.
     window = sg.Window('FlyShaker GUI', get_layout())
@@ -240,16 +267,23 @@ def main():
         # Make sure input boxes only have digits
         check_input_keys_for_non_digits(values, window)
 
+        # Checks if Sine or Pulse is selected, then disables the non-selected input boxes.
+        # For example, if Sine is selected, then Pulse Specification's input boxes are disabled (no input allowed).
+        check_radio(window, values)
+
         if event == sg.WIN_CLOSED:
             break
         elif event == 'Generate Waveform':
             print("You pressed Generate Waveform")
             # Where Tom's Code will be accessed.
 
+            window[WIDTH_KEY].update(background_color='blue')
+
             if values[SINE] == True:
                 print("Sine")
                 for key in SINE_KEYS:
                     print(key, ":", values[key])
+
             else:
                 print("Pulse")
                 for key in PULSE_KEYS:
