@@ -18,6 +18,11 @@ TODO:
 Changelog:
 2-11-2023: Added in sine/pulse specifications and radio.
 2-1-2023: Initial Creation
+
+Sources for code ideas:
+https://www.tutorialspoint.com/pysimplegui/pysimplegui_frame_element.htm
+https://www.pysimplegui.org/en/latest/cookbook/
+https://csveda.com/pysimplegui-column-and-frame/
 """
 
 import PySimpleGUI as sg
@@ -61,26 +66,52 @@ def main():
     # Setup Theme
     sg.theme('TealMono')
 
+    sine_layout = [[sg.Push(), sg.Text("Frequency (10 to 200 Hz):"), sg.InputText(default_text=FREQ_DEF, size=(4, 1), key=FREQ_KEY)],
+                   [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_DEF, size=(4, 1), key=AMP_KEY)],
+                   [sg.Push(), sg.Text("Duration (seconds):"), sg.InputText(default_text=DUR_DEF, size=(4, 1), key=DUR_KEY)],
+                   [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_SINE_DEF, size=(4, 1), key=BURST_SINE_KEY)]
+                   ]
+
+    sine_frame = sg.Frame("Sine Specifications", layout=sine_layout)
+
+    pulse_layout = [[sg.Push(), sg.Text("Width (msec):"), sg.InputText(default_text=WIDTH_DEF, size=(4, 1), key=WIDTH_KEY)],
+                    [sg.Push(), sg.Text("Period (msec):"), sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
+                    [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
+                    [sg.Push(), sg.Text("Count (1 to 32,000):"), sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
+                    [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_P_DEF, size=(4, 1), key=BURST_P_KEY)]
+                    ]
+
+    pulse_frame = sg.Frame("Pulse Specifications", layout=pulse_layout)
+
     # Setup Layout
     layout = [[sg.Text('Choose a Wave Type (Sine or Pulse):')],
               [sg.Radio(SINE, group_id=GROUP_ID, key=SINE, default=True),
                sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
-              [sg.HorizontalSeparator()],
-              [sg.Text("Sine Specifications:")],
-              [sg.Push(), sg.Text("Frequency (10 to 200 Hz):"), sg.InputText(default_text=FREQ_DEF, size=(4, 1), key=FREQ_KEY)],
-              [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_DEF, size=(4, 1), key=AMP_KEY)],
-              [sg.Push(), sg.Text("Duration (seconds):"), sg.InputText(default_text=DUR_DEF, size=(4, 1), key=DUR_KEY)],
-              [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_SINE_DEF, size=(4, 1), key=BURST_SINE_KEY)],
-              [sg.HorizontalSeparator()],
-              [sg.Text("Pulse Specifications:")],
-              [sg.Push(), sg.Text("Width (msec):"), sg.InputText(default_text=WIDTH_DEF, size=(4, 1), key=WIDTH_KEY)],
-              [sg.Push(), sg.Text("Period (msec):"), sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
-              [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
-              [sg.Push(), sg.Text("Count (1 to 32,000):"), sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
-              [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_P_DEF, size=(4, 1), key=BURST_P_KEY)],
-              [sg.HorizontalSeparator()],
+              [sine_frame],
+              [pulse_frame],
               [sg.Button('Generate Waveform')]
               ]
+
+    # Original Layout
+    # layout = [[sg.Text('Choose a Wave Type (Sine or Pulse):')],
+    #           [sg.Radio(SINE, group_id=GROUP_ID, key=SINE, default=True),
+    #            sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
+    #           [sg.HorizontalSeparator()],
+    #           [sg.Text("Sine Specifications:")],
+    #           [sg.Push(), sg.Text("Frequency (10 to 200 Hz):"), sg.InputText(default_text=FREQ_DEF, size=(4, 1), key=FREQ_KEY)],
+    #           [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_DEF, size=(4, 1), key=AMP_KEY)],
+    #           [sg.Push(), sg.Text("Duration (seconds):"), sg.InputText(default_text=DUR_DEF, size=(4, 1), key=DUR_KEY)],
+    #           [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_SINE_DEF, size=(4, 1), key=BURST_SINE_KEY)],
+    #           [sg.HorizontalSeparator()],
+    #           [sg.Text("Pulse Specifications:")],
+    #           [sg.Push(), sg.Text("Width (msec):"), sg.InputText(default_text=WIDTH_DEF, size=(4, 1), key=WIDTH_KEY)],
+    #           [sg.Push(), sg.Text("Period (msec):"), sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
+    #           [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
+    #           [sg.Push(), sg.Text("Count (1 to 32,000):"), sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
+    #           [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_P_DEF, size=(4, 1), key=BURST_P_KEY)],
+    #           [sg.HorizontalSeparator()],
+    #           [sg.Button('Generate Waveform')]
+    #           ]
 
     # Create Window
     window = sg.Window('FlyShaker GUI', layout)
