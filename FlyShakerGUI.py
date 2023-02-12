@@ -11,6 +11,9 @@ GUI using Thomas Zimmerman's wave generator code for Dr. Divya Sitaraman's droso
 
 TODO:
 -Disable input boxes based on Radio Sine/Pulse selection?
+Possible solutions to that:
+https://www.pysimplegui.org/en/latest/cookbook/#recipe-collapsible-sections-visible-invisible-elements
+https://stackoverflow.com/questions/61006988/hiding-and-unhiding-text-input-and-filebrowse-in-pysimplegui
 
 Changelog:
 2-11-2023: Added in sine/pulse specifications and radio.
