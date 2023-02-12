@@ -12,7 +12,6 @@ GUI using Thomas Zimmerman's wave generator code for Dr. Divya Sitaraman's droso
 TODO:
 -Do a number check for input boxes.
 -Put in sample image for waveforms to the right as a column
--Put different sections into a frame
 -Disable input boxes based on Radio Sine/Pulse selection?
 
 Changelog:
@@ -87,8 +86,8 @@ def main():
     layout = [[sg.Text('Choose a Wave Type (Sine or Pulse):')],
               [sg.Radio(SINE, group_id=GROUP_ID, key=SINE, default=True),
                sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
-              [sine_frame],
-              [pulse_frame],
+              [sine_frame, sg.Image("sine_wave.png")],
+              [pulse_frame, sg.Image("pulse_wave.png")],
               [sg.Button('Generate Waveform')]
               ]
 
