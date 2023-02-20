@@ -57,14 +57,23 @@ PLOT_SAMPLES=1000
 for f in range(START_FREQ,STOP_FREQ,STEP_FREQ):
     print(f)
     freq=f
+    # Generate sine wave with amp (how far from zero in the y direction it goes) with sampleRate x values (44100 in this case)
+    #  Then normalize it so the x values will be from 0 to 1 in the x direction. Sine formula is Sin(2*pi*freq*x) TODO: Fix the formula.
+    #  Generates a horizontal vector
     arr = numpy.array([amp * numpy.sin(2.0 * numpy.pi * freq * x / sampleRate) for x in range(0, sampleRate)]).astype(numpy.int16)
     plt.plot(arr[0:PLOT_SAMPLES])
     plt.ylabel('some numbers')
     plt.show()
+    # Creates 2 duplicate horizontal vectors, stacks them on top of each other. TODO: Figure out why?
     arr2 = numpy.c_[arr,arr]
+    print(arr.shape)
+    print(arr)
+    print(arr2.shape)
     sound = pygame.sndarray.make_sound(arr2)
     sound.play(fade_ms=fade_in)
     pygame.time.delay(duration)
+
+    # Both might be redundant.
     sound.fadeout(fade_out)
     pygame.time.wait(fade_out)
     
