@@ -12,6 +12,7 @@ Direct Link to MedoAlmasry's post: https://stackoverflow.com/a/62250319
 TODO:
 -Turn into variables/functions: sampleRate, freq, duration, fade_in, fade_out, amp
 -Modularize to work with a GUI
+-Convert pulse period (msec) to frequency (hz)
 
 """
 
@@ -67,6 +68,32 @@ def get_square_wave2(amp, freq, sample_rate):
     # Creates 2 duplicate horizontal vectors, stacks them on top of each other. TODO: Figure out why?
     arr2 = numpy.c_[arr,arr]
     return arr, arr2
+
+
+def get_square_wave3():
+    T=10 # Period
+    D=5 # Duration (also width)
+    N=10 # Number of pulse
+    shift = 1/4   # number of cycles to shift (1/4 cycle in your example)
+    x = numpy.linspace(0, T*N, 10000, endpoint=False) # Original
+    y=signal.square(2 * numpy.pi * (1/T) * x + 2*shift*numpy.pi, duty=0.2)
+    plt.plot(x,y)
+    plt.ylim(-2, 2)
+    # plt.xlim(0, T*N)
+    plt.show()
+
+
+def get_square_wave4():
+    N = 100 # sample count
+    P = 10  # period
+    D = 8   # width of pulse
+    # sig = numpy.arange(N) % P < D
+    sig = numpy.linspace(0, N, 10000, endpoint=False) % P < D
+    plt.plot(sig)
+    plt.show()
+
+    # Question: Can you play this audio?
+
 
 
 def main3():
@@ -237,4 +264,7 @@ def main():
 if __name__ == "__main__":
     # main()
     # main2()
-    main3()
+    # main3()
+    get_square_wave3()
+    # get_square_wave4()
+
