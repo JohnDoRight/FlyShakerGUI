@@ -42,6 +42,23 @@ def get_sine_wave(amp, freq, sample_rate):
     return arr, arr2
 
 
+def get_sine_wave2(amp, freq, sample_rate):
+
+    ts = 1.0/sample_rate
+    seconds_start = 0
+    seconds_end = 2
+    t = numpy.arange(seconds_start, seconds_end, ts)
+
+    # Generate sine wave with amp (how far from zero in the y direction it goes) with sampleRate x values (44100 in this case)
+    #  Then normalize it so the x values will be from 0 to 1 in the x direction. Sine formula is Sin(2*pi*freq*x) TODO: Fix the formula.
+    #  Generates a horizontal vector
+    sine_wave = amp * numpy.sin(2.0 * numpy.pi * freq * t)
+    arr = sine_wave.astype(numpy.int16)
+    # Creates 2 duplicate horizontal vectors, stacks them on top of each other. TODO: Figure out why?
+    arr2 = numpy.c_[arr,arr]
+    return arr, arr2
+
+
 def get_square_wave(amp, freq, sample_rate):
     # Generate sine wave with amp (how far from zero in the y direction it goes) with sampleRate x values (44100 in this case)
     #  Then normalize it so the x values will be from 0 to 1 in the x direction. Sine formula is Sin(2*pi*freq*x) TODO: Fix the formula.
@@ -60,10 +77,17 @@ def get_square_wave2(amp, freq, sample_rate):
     # sampling interval
     ts = 1.0/sample_rate
     seconds_start = 0
-    seconds_end = 10
+    seconds_end = 1
     t = numpy.arange(seconds_start, seconds_end, ts)
 
-    square_wave = amp * signal.square(2.0 * numpy.pi * freq * t, duty=0.5)
+    duty_cycle = 0.9
+
+    period = 1/freq
+
+    print(f"period: {period}, freq: {freq}")
+    print(f"duty_cycle: {duty_cycle}, pulse width?: {duty_cycle * period}")
+
+    square_wave = amp * signal.square(2.0 * numpy.pi * freq * t, duty=duty_cycle)
     arr = square_wave.astype(numpy.int16)
     # Creates 2 duplicate horizontal vectors, stacks them on top of each other. TODO: Figure out why?
     arr2 = numpy.c_[arr,arr]
@@ -86,14 +110,18 @@ def get_square_wave3():
 def get_square_wave4():
     N = 100 # sample count
     P = 10  # period
-    D = 8   # width of pulse
+    D = 5   # width of pulse
     # sig = numpy.arange(N) % P < D
-    sig = numpy.linspace(0, N, 10000, endpoint=False) % P < D
+    # Changing the below would end up with a similar array as the signal.square()
+    sig = numpy.linspace(0, P*N, 10000, endpoint=False) % P < D
+    # arr = sig.astype(numpy.int16)
+    # arr2 = numpy.c_[arr,arr]
     plt.plot(sig)
     plt.show()
 
     # Question: Can you play this audio?
-
+    # Might have to make more adjustments to make the audio playable. Maybe frequency.
+    # return arr, arr2
 
 
 def main3():
@@ -123,6 +151,7 @@ def main3():
     # y = numpy.sin(2*numpy.pi*freq*t)
     amp = 16000
     arr, arr2 = get_square_wave2(amp, freq, sr)
+    # arr, arr2 = get_square_wave4()
     y = arr[0:PLOT_SAMPLES]
 
     plt.subplot(212)
@@ -183,9 +212,9 @@ def main2():
         #  Then normalize it so the x values will be from 0 to 1 in the x direction. Sine formula is Sin(2*pi*freq*x) TODO: Fix the formula.
         #  Generates a horizontal vector
         # arr = numpy.array([amp * numpy.sin(2.0 * numpy.pi * freq * x / sampleRate) for x in range(0, sampleRate)]).astype(numpy.int16)
-        # arr, arr2 = get_sine_wave(amp, freq, sampleRate)
+        arr, arr2 = get_sine_wave2(amp, freq, sampleRate)
 
-        arr, arr2 = get_square_wave(amp, freq, sampleRate)
+        # arr, arr2 = get_square_wave(amp, freq, sampleRate)
         plt.plot(arr[0:PLOT_SAMPLES])
         plt.ylabel('some numbers')
         plt.show()
@@ -247,7 +276,8 @@ def main():
         plt.plot(arr[0:PLOT_SAMPLES])
         plt.ylabel('some numbers')
         plt.show()
-        # Creates 2 duplicate horizontal vectors, stacks them on top of each other. TODO: Figure out why?
+        # Creates 2 duplicate horizontal vectors, stacks them on top of each other.
+        # Why? For stereo mixing.
         arr2 = numpy.c_[arr,arr]
         print(arr.shape)
         print(arr)
@@ -263,8 +293,8 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    # main2()
+    main2()
     # main3()
-    get_square_wave3()
+    # get_square_wave3()
     # get_square_wave4()
 
