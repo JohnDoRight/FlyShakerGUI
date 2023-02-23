@@ -15,6 +15,9 @@ Possible solutions to that:
 https://www.pysimplegui.org/en/latest/cookbook/#recipe-collapsible-sections-visible-invisible-elements
 https://stackoverflow.com/questions/61006988/hiding-and-unhiding-text-input-and-filebrowse-in-pysimplegui
 https://www.pysimplegui.org/en/latest/call%20reference/#input-element
+-Do a thread if adding "Stop Waveform" button
+-Have time elapsed, start/end time for playing/stopping waveform
+-Preview wave form?
 
 Changelog:
 2-11-2023: Added in sine/pulse specifications and radio.
