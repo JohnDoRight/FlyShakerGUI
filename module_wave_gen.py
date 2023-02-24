@@ -36,6 +36,7 @@ def get_sine_wave(amp=16000, freq=200, dur=1.0, sample_rate=44100):
     :param dur: The duration of the signal. Default 1.0 seconds.
     :param sample_rate: Hz, number of samples for a second.
                         Default is 44100 Hz.
+                        TODO: Research this, related to pygame.mixer.init()?
     :return: sine_arr (for plotting), sine_snd (sound array for playback.
     """
 

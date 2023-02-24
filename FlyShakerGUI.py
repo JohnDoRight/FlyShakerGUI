@@ -18,6 +18,7 @@ https://www.pysimplegui.org/en/latest/call%20reference/#input-element
 -Do a thread if adding "Stop Waveform" button
 -Have time elapsed, start/end time for playing/stopping waveform
 -Preview wave form?
+-Change duration so it can be float? How to check for floating values in str?
 
 Changelog:
 2-11-2023: Added in sine/pulse specifications and radio.
@@ -42,6 +43,9 @@ https://stackoverflow.com/questions/65923933/pysimplegui-set-and-get-the-cursor-
 import os
 import PySimpleGUI as sg
 
+# Import modules
+import module_wave_gen as W
+
 # Get full directory of where this file is, used for image loading.
 sourceFileDir = os.path.dirname(os.path.abspath(__file__))
 imgFolderDir = "img"
@@ -55,9 +59,11 @@ GROUP_ID = "RADIO1"
 # SINE SPECIFICATIONS
 # Note: "DEF" means "Default"
 FREQ_KEY = "-FREQ-"
-FREQ_DEF = "10"
+# FREQ_DEF = "10"
+FREQ_DEF = "200"
 AMP_KEY = "-AMP-"
-AMP_DEF = "1"
+# AMP_DEF = "1"
+AMP_DEF = "16000"
 DUR_KEY = "-DURATION-"
 DUR_DEF = "1"
 BURST_SINE_KEY = "-BURST-"
@@ -286,6 +292,14 @@ def main():
                 print("Sine")
                 for key in SINE_KEYS:
                     print(key, ":", values[key])
+
+                amp = int(values[AMP_KEY])
+                freq = int(values[FREQ_KEY])
+                dur = float(values[DUR_KEY])
+
+                # sine_arr, sine_snd = W.get_sine_wave(dur=1.0)
+                sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
+                W.play_audio(sine_snd)
 
             else:
                 print("Pulse")
