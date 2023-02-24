@@ -94,12 +94,42 @@ def play_audio(snd):
     print("Done playing audio")
 
 
+def map_function(value, from_low, from_high, to_low, to_high):
+    """
+    Adpated from Arduino's map function. Link:
+    https://www.arduino.cc/reference/en/language/functions/math/map/
+
+    Will be used for mapping values from input range or 1-100 (amplitude, maybe pulse width).
+
+    :param value: int, value you want to change.
+    :param from_low: int, minimum or lowest value from input range; e.g. for range 1-100, 1 is the lowest.
+    :param from_high: int, maximum or highest value from input range; e.g. for range 1-100, 100 is the highest.
+    :param to_low: int, minimum or lowest value from output range; e.g. for range 1-32000, 1 is the lowest.
+    :param to_high: int, maximum or highest value from output range; e.g. for range 1-32000, 32000 is the highest.
+    :return: int, value mapped onto output range.
+    """
+    print("map_function")
+    result = (value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low
+    return int(result)
+
+
 def main():
     print("main")
 
-    sine_arr, sine_snd = get_sine_wave(dur=1.0)
-    play_audio(sine_snd)
-    play_audio(sine_snd)
+    # Test sine wave audio playback
+    # sine_arr, sine_snd = get_sine_wave(dur=1.0)
+    # play_audio(sine_snd)
+    # play_audio(sine_snd)
+
+    # Test map_function
+    value = 41
+    from_low = 0
+    from_high = 100
+    to_low = 0
+    to_high = 32000
+    output = map_function(value, from_low, from_high, to_low, to_high)
+    print("output:", output)
+
     pass
 
 
