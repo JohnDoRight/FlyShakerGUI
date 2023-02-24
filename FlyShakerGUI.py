@@ -102,6 +102,11 @@ PULSE_DEFAULTS = [WIDTH_DEF, PERIOD_DEF, AMP_P_DEF, COUNT_DEF, BURST_P_DEF]
 # Note: If you change the "img" folder name or location, this will crash the GUI.
 PULSE_IMG = os.path.join(sourceFileDir, imgFolderDir, 'pulse_wave.png')
 
+# Button Text
+START_BUTTON = "Play Audio"
+STOP_BUTTON = "Stop Audio"
+BUTTON_EVENTS = [START_BUTTON, STOP_BUTTON]
+
 # ---- [START] FUNCTIONS FOR INTEGER CHECK IN INPUT BOXES -----
 # TODO: Put in a module
 
@@ -252,10 +257,55 @@ def get_layout():
                sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
               [sine_frame],
               [pulse_frame],
-              [sg.Push(), sg.Button('Generate Waveform')]
+              [sg.Push(), sg.Button(START_BUTTON), sg.Button(STOP_BUTTON)]
               ]
 
     return layout
+
+
+def event_manager(window, event, values):
+
+    # Get Sine/Pulse Radio selection.
+    # If Sine is selected, values[SINE] will be true.
+    is_sine_wave = values[SINE]
+
+    if event == START_BUTTON:
+        print("You pressed", event)
+        # Where Tom's Code will be accessed.
+
+        # If "Sine" is selected, get Sine waves. Else get Pulse values.
+        if is_sine_wave:
+            print("Sine")
+
+            # For troubleshooting, are the input values accessible?
+            for key in SINE_KEYS:
+                print(key, ":", values[key])
+
+            amp = int(values[AMP_KEY])
+            freq = int(values[FREQ_KEY])
+            dur = float(values[DUR_KEY])
+
+            # sine_arr, sine_snd = W.get_sine_wave(dur=1.0)
+            sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
+            W.play_audio(sine_snd)
+
+        else:
+            print("Pulse")
+
+            # For troubleshooting, are the input values accessible?
+            for key in PULSE_KEYS:
+                print(key, ":", values[key])
+
+            width_p = int(values[WIDTH_KEY])
+            period_p = int(values[PERIOD_KEY])
+            amp_p = int(values[AMP_P_KEY])
+            count_p = int(values[COUNT_KEY])
+            burst_p = int(values[BURST_P_KEY])
+
+    elif event == STOP_BUTTON:
+        print("You pressed Stop Button")
+
+    pass
 
 
 def main():
@@ -282,29 +332,8 @@ def main():
 
         if event == sg.WIN_CLOSED:
             break
-        elif event == 'Generate Waveform':
-            print("You pressed Generate Waveform")
-            # Where Tom's Code will be accessed.
-
-            window[WIDTH_KEY].update(background_color='blue')
-
-            if values[SINE] == True:
-                print("Sine")
-                for key in SINE_KEYS:
-                    print(key, ":", values[key])
-
-                amp = int(values[AMP_KEY])
-                freq = int(values[FREQ_KEY])
-                dur = float(values[DUR_KEY])
-
-                # sine_arr, sine_snd = W.get_sine_wave(dur=1.0)
-                sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
-                W.play_audio(sine_snd)
-
-            else:
-                print("Pulse")
-                for key in PULSE_KEYS:
-                    print(key, ":", values[key])
+        elif event in BUTTON_EVENTS:
+            event_manager(window, event, values)
 
     # Close Window after breaking out of loop
     window.close()
