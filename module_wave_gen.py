@@ -104,11 +104,12 @@ def plot_waveform(wave_arr, dur=1.0, sample_rate=44100):
     seconds_start = 0
     seconds_end = dur
     t = np.arange(seconds_start, seconds_end, ts)
-    
+
     plt.plot(t[0:PLOT_SAMPLES], wave_arr[0:PLOT_SAMPLES])
     plt.ylabel('Amplitude')
     plt.xlabel('Time (s)')
     plt.show()
+    plt.close()
 
 
 def map_function(value, from_low, from_high, to_low, to_high):
