@@ -94,6 +94,23 @@ def play_audio(snd):
     print("Done playing audio")
 
 
+def plot_waveform(wave_arr, dur=1.0, sample_rate=44100):
+
+    # Only plot the first 1000 values
+    PLOT_SAMPLES = 1000
+
+    # Generate time values (x-axis)
+    ts = 1.0/sample_rate  # time step size
+    seconds_start = 0
+    seconds_end = dur
+    t = np.arange(seconds_start, seconds_end, ts)
+    
+    plt.plot(t[0:PLOT_SAMPLES], wave_arr[0:PLOT_SAMPLES])
+    plt.ylabel('Amplitude')
+    plt.xlabel('Time (s)')
+    plt.show()
+
+
 def map_function(value, from_low, from_high, to_low, to_high):
     """
     Adpated from Arduino's map function. Link:
@@ -121,14 +138,19 @@ def main():
     # play_audio(sine_snd)
     # play_audio(sine_snd)
 
+    # Test sinw wave plotting
+    sine_arr, sine_snd = get_sine_wave(dur=1.0)
+    plot_waveform(sine_arr, dur=1.0, sample_rate=44100)
+
+
     # Test map_function
-    value = 41
-    from_low = 0
-    from_high = 100
-    to_low = 0
-    to_high = 32000
-    output = map_function(value, from_low, from_high, to_low, to_high)
-    print("output:", output)
+    # value = 41
+    # from_low = 0
+    # from_high = 100
+    # to_low = 0
+    # to_high = 32000
+    # output = map_function(value, from_low, from_high, to_low, to_high)
+    # print("output:", output)
 
     pass
 
