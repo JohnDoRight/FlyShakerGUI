@@ -105,7 +105,8 @@ PULSE_IMG = os.path.join(sourceFileDir, imgFolderDir, 'pulse_wave.png')
 # Button Text
 START_BUTTON = "Play Audio"
 STOP_BUTTON = "Stop Audio"
-BUTTON_EVENTS = [START_BUTTON, STOP_BUTTON]
+PLOT_BUTTON = "Plot Waveform"
+BUTTON_EVENTS = [START_BUTTON, STOP_BUTTON, PLOT_BUTTON]
 
 # ---- [START] FUNCTIONS FOR INTEGER CHECK IN INPUT BOXES -----
 # TODO: Put in a module
@@ -257,7 +258,7 @@ def get_layout():
                sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
               [sine_frame],
               [pulse_frame],
-              [sg.Push(), sg.Button(START_BUTTON), sg.Button(STOP_BUTTON)]
+              [sg.Push(), sg.Button(START_BUTTON), sg.Button(STOP_BUTTON), sg.Button(PLOT_BUTTON)]
               ]
 
     return layout
@@ -303,7 +304,16 @@ def event_manager(window, event, values):
             burst_p = int(values[BURST_P_KEY])
 
     elif event == STOP_BUTTON:
-        print("You pressed Stop Button")
+        print("You pressed", event)
+    elif event == PLOT_BUTTON:
+        print("You pressed", event)
+        amp = int(values[AMP_KEY])
+        freq = int(values[FREQ_KEY])
+        dur = float(values[DUR_KEY])
+
+        sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
+        W.plot_waveform(sine_arr, dur)
+        # BUG: Shrinks GUI. Maybe use PySimpleGUI to plot it. Or don't have this button at all.
 
     pass
 
