@@ -103,10 +103,13 @@ PULSE_DEFAULTS = [WIDTH_DEF, PERIOD_DEF, AMP_P_DEF, COUNT_DEF, BURST_P_DEF]
 PULSE_IMG = os.path.join(sourceFileDir, imgFolderDir, 'pulse_wave.png')
 
 # Button Text
-START_BUTTON = "Play Audio"
-STOP_BUTTON = "Stop Audio"
-PLOT_BUTTON = "Plot Waveform"
-BUTTON_EVENTS = [START_BUTTON, STOP_BUTTON, PLOT_BUTTON]
+PLAY_AUDIO_BUTTON = "Play Audio Sample"
+# STOP_BUTTON = "Stop Audio"
+# PLOT_BUTTON = "Plot Waveform"
+
+START_EXPERIMENT = "Start Experiment"
+STOP_EXPERIMENT = "Stop Experiment"
+BUTTON_EVENTS = [PLAY_AUDIO_BUTTON, START_EXPERIMENT, STOP_EXPERIMENT]
 
 # ---- [START] FUNCTIONS FOR INTEGER CHECK IN INPUT BOXES -----
 # TODO: Put in a module
@@ -258,7 +261,8 @@ def get_layout():
                sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
               [sine_frame],
               [pulse_frame],
-              [sg.Push(), sg.Button(START_BUTTON), sg.Button(STOP_BUTTON), sg.Button(PLOT_BUTTON)]
+              [sg.Button(PLAY_AUDIO_BUTTON)],
+              [sg.Button("Start Experiment"), sg.Button("Stop Experiment")]
               ]
 
     return layout
@@ -270,7 +274,7 @@ def event_manager(window, event, values):
     # If Sine is selected, values[SINE] will be true.
     is_sine_wave = values[SINE]
 
-    if event == START_BUTTON:
+    if event == PLAY_AUDIO_BUTTON:
         print("You pressed", event)
         # Where Tom's Code will be accessed.
 
@@ -302,18 +306,28 @@ def event_manager(window, event, values):
             amp_p = int(values[AMP_P_KEY])
             count_p = int(values[COUNT_KEY])
             burst_p = int(values[BURST_P_KEY])
-
-    elif event == STOP_BUTTON:
+    elif event == START_EXPERIMENT:
         print("You pressed", event)
-    elif event == PLOT_BUTTON:
-        print("You pressed", event)
-        amp = int(values[AMP_KEY])
-        freq = int(values[FREQ_KEY])
-        dur = float(values[DUR_KEY])
+        # TODO: Add in a audio playback manager since there is redundancy with the "Play Audio" section.
 
-        sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
-        W.plot_waveform(sine_arr, dur)
-        # BUG: Shrinks GUI. Maybe use PySimpleGUI to plot it. Or don't have this button at all.
+        # Extract experiment time in hours and minutes.
+
+        # Put in Elapsed time experiment ran?
+
+    elif event == STOP_EXPERIMENT:
+        print("You pressed", event)
+    # TODO: Decide to keep or remove the following buttons (stop, plot):
+    # elif event == STOP_BUTTON:
+    #     print("You pressed", event)
+    # elif event == PLOT_BUTTON:
+    #     print("You pressed", event)
+        # amp = int(values[AMP_KEY])
+        # freq = int(values[FREQ_KEY])
+        # dur = float(values[DUR_KEY])
+        #
+        # sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
+        # W.plot_waveform(sine_arr, dur)
+        # # BUG: Shrinks GUI. Maybe use PySimpleGUI to plot it. Or don't have this button at all.
 
     pass
 
