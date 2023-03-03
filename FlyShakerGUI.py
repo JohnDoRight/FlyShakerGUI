@@ -268,6 +268,49 @@ def get_layout():
     return layout
 
 
+def get_wave_specs(values):
+    # Note: Will only work for sine/pulse. If you use different wave types, this code will need to be changed.
+    # Future feature: Store these into a class or dictionary?
+
+    # Get is_sine_wave
+    is_sine_wave = values[SINE]
+
+    # Get either sine or pulse specfications
+    if is_sine_wave:
+        print("Sine")
+
+        # For troubleshooting, are the input values accessible?
+        for key in SINE_KEYS:
+            print(key, ":", values[key])
+
+        amp = int(values[AMP_KEY])
+        freq = int(values[FREQ_KEY])
+        dur = float(values[DUR_KEY])
+
+        # sine_arr, sine_snd = W.get_sine_wave(dur=1.0)
+        sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
+        W.play_audio(sine_snd)
+
+    else:
+        print("Pulse")
+
+        # For troubleshooting, are the input values accessible?
+        for key in PULSE_KEYS:
+            print(key, ":", values[key])
+
+        width_p = int(values[WIDTH_KEY])
+        period_p = int(values[PERIOD_KEY])
+        amp_p = int(values[AMP_P_KEY])
+        count_p = int(values[COUNT_KEY])
+        burst_p = int(values[BURST_P_KEY])
+
+        # Get Pulse Wave array and sound array
+
+    # return wave_arr and wave_snd
+
+    pass
+
+
 def event_manager(window, event, values):
 
     # Get Sine/Pulse Radio selection.

@@ -131,6 +131,10 @@ def map_function(value, from_low, from_high, to_low, to_high):
     return int(result)
 
 
+def audio_playback_manager():
+    pass
+
+
 def main():
     print("main")
 
