@@ -268,9 +268,13 @@ def get_layout():
     return layout
 
 
-def get_wave_specs(values):
+def get_wave(values):
     # Note: Will only work for sine/pulse. If you use different wave types, this code will need to be changed.
     # Future feature: Store these into a class or dictionary?
+
+    wave_arr = ""
+
+    wave_snd = ""
 
     # Get is_sine_wave
     is_sine_wave = values[SINE]
@@ -289,7 +293,9 @@ def get_wave_specs(values):
 
         # sine_arr, sine_snd = W.get_sine_wave(dur=1.0)
         sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
-        W.play_audio(sine_snd)
+        # W.play_audio(sine_snd)
+        wave_arr = sine_arr
+        wave_snd = sine_snd
 
     else:
         print("Pulse")
@@ -307,7 +313,10 @@ def get_wave_specs(values):
         # Get Pulse Wave array and sound array
 
     # return wave_arr and wave_snd
+    return wave_arr, wave_snd
 
+
+def start_experiment(window, event, values):
     pass
 
 
@@ -321,34 +330,10 @@ def event_manager(window, event, values):
         print("You pressed", event)
         # Where Tom's Code will be accessed.
 
-        # If "Sine" is selected, get Sine waves. Else get Pulse values.
-        if is_sine_wave:
-            print("Sine")
+        # wave_arr is for plotting, wave_snd is for playing sound
+        wave_arr, wave_snd = get_wave(values)
+        W.play_audio(wave_snd)
 
-            # For troubleshooting, are the input values accessible?
-            for key in SINE_KEYS:
-                print(key, ":", values[key])
-
-            amp = int(values[AMP_KEY])
-            freq = int(values[FREQ_KEY])
-            dur = float(values[DUR_KEY])
-
-            # sine_arr, sine_snd = W.get_sine_wave(dur=1.0)
-            sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
-            W.play_audio(sine_snd)
-
-        else:
-            print("Pulse")
-
-            # For troubleshooting, are the input values accessible?
-            for key in PULSE_KEYS:
-                print(key, ":", values[key])
-
-            width_p = int(values[WIDTH_KEY])
-            period_p = int(values[PERIOD_KEY])
-            amp_p = int(values[AMP_P_KEY])
-            count_p = int(values[COUNT_KEY])
-            burst_p = int(values[BURST_P_KEY])
     elif event == START_EXPERIMENT:
         print("You pressed", event)
         # TODO: Add in a audio playback manager since there is redundancy with the "Play Audio" section.
@@ -356,6 +341,8 @@ def event_manager(window, event, values):
         # Extract experiment time in hours and minutes.
 
         # Put in Elapsed time experiment ran?
+        # wave_arr, wave_snd = get_wave(values)
+        # W.play_audio(wave_snd)
 
     elif event == STOP_EXPERIMENT:
         print("You pressed", event)
