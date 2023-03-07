@@ -10,13 +10,14 @@ GUI using Thomas Zimmerman's wave generator code for Dr. Divya Sitaraman's droso
 [Note: Put in Tom's CCC and IBM funding section here.]
 
 TODO:
+-Have time elapsed, start/end time for playing/stopping waveform
+-TODO: Put hours/min into a frame and right-aligned. Maybe the Start/Stop Button too
 -Disable input boxes based on Radio Sine/Pulse selection?
 Possible solutions to that:
 https://www.pysimplegui.org/en/latest/cookbook/#recipe-collapsible-sections-visible-invisible-elements
 https://stackoverflow.com/questions/61006988/hiding-and-unhiding-text-input-and-filebrowse-in-pysimplegui
 https://www.pysimplegui.org/en/latest/call%20reference/#input-element
--Do a thread if adding "Stop Waveform" button
--Have time elapsed, start/end time for playing/stopping waveform
+
 -Preview wave form?
 -Change duration so it can be float? How to check for floating values in str?
 -Play audio sample for x seconds regardless of length? (1 seconds)
@@ -268,6 +269,9 @@ def get_layout():
               [sine_frame],
               [pulse_frame],
               [sg.Button(PLAY_AUDIO_BUTTON)],
+              [sg.Text("How long do I run the experiment?")],
+              [sg.Text("Hours:"), sg.Input(default_text="0", size=(4, 1))],
+              [sg.Text("Min:"), sg.Input(default_text="1", size=(4, 1))],
               [sg.Button("Start Experiment"), sg.Button("Stop Experiment", disabled=True)]
               ]
 
