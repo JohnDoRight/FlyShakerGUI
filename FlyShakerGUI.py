@@ -19,6 +19,7 @@ https://www.pysimplegui.org/en/latest/call%20reference/#input-element
 -Have time elapsed, start/end time for playing/stopping waveform
 -Preview wave form?
 -Change duration so it can be float? How to check for floating values in str?
+-Play audio sample for x seconds regardless of length? (1 seconds)
 
 Changelog:
 2-11-2023: Added in sine/pulse specifications and radio.
@@ -42,6 +43,8 @@ https://stackoverflow.com/questions/65923933/pysimplegui-set-and-get-the-cursor-
 
 import os
 import PySimpleGUI as sg
+import threading
+import time
 
 # Import modules
 import module_wave_gen as W
@@ -110,6 +113,9 @@ PLAY_AUDIO_BUTTON = "Play Audio Sample"
 START_EXPERIMENT = "Start Experiment"
 STOP_EXPERIMENT = "Stop Experiment"
 BUTTON_EVENTS = [PLAY_AUDIO_BUTTON, START_EXPERIMENT, STOP_EXPERIMENT]
+
+# ==== Non-GUI Variables ====
+is_running_experiment = False
 
 # ---- [START] FUNCTIONS FOR INTEGER CHECK IN INPUT BOXES -----
 # TODO: Put in a module
@@ -262,7 +268,7 @@ def get_layout():
               [sine_frame],
               [pulse_frame],
               [sg.Button(PLAY_AUDIO_BUTTON)],
-              [sg.Button("Start Experiment"), sg.Button("Stop Experiment")]
+              [sg.Button("Start Experiment"), sg.Button("Stop Experiment", disabled=True)]
               ]
 
     return layout
@@ -316,12 +322,21 @@ def get_wave(values):
     return wave_arr, wave_snd
 
 
-def start_experiment(window, event, values):
+def start_experiment(event, values):
+    # Runs the experiment for x hours and y minutes (in a thread)
+    wave_arr, wave_snd = get_wave(values)
+    W.play_audio(wave_snd)
+    for i in range(5):
+        W.play_audio(wave_snd)
+        if not is_running_experiment:
+            print(event, "was pressed")
+            print("Stopping experiment after playing current audio sample")
+            break
     pass
 
 
 def event_manager(window, event, values):
-
+    global is_running_experiment
     # Get Sine/Pulse Radio selection.
     # If Sine is selected, values[SINE] will be true.
     is_sine_wave = values[SINE]
@@ -335,7 +350,13 @@ def event_manager(window, event, values):
         W.play_audio(wave_snd)
 
     elif event == START_EXPERIMENT:
+        is_running_experiment = True
+        # print("is_running_experiment:", is_running_experiment)
+        # Disable Start Experiment Button, Enable Stop Experiment Button
+        window[START_EXPERIMENT].update(disabled=True)
+        window[STOP_EXPERIMENT].update(disabled=False)
         print("You pressed", event)
+
         # TODO: Add in a audio playback manager since there is redundancy with the "Play Audio" section.
 
         # Extract experiment time in hours and minutes.
@@ -343,9 +364,24 @@ def event_manager(window, event, values):
         # Put in Elapsed time experiment ran?
         # wave_arr, wave_snd = get_wave(values)
         # W.play_audio(wave_snd)
+        # start_experiment(values)
+
+        experiment_thread = threading.Thread(target=start_experiment, args=(event, values), daemon=True)
+        experiment_thread.start()
+        # time.sleep(5)
 
     elif event == STOP_EXPERIMENT:
+        is_running_experiment = False
+        # print("is_running_experiment:", is_running_experiment)
+        # Disable Stop Experiment Button, Enable Start Experiment Button
+        window[START_EXPERIMENT].update(disabled=False)
+        window[STOP_EXPERIMENT].update(disabled=True)
         print("You pressed", event)
+        # Stop thread, set prepares stopping
+        # thread_event.set()
+
+        # Stop experiemnt_thread
+        # experiment_thread.join(timeout=1)
     # TODO: Decide to keep or remove the following buttons (stop, plot):
     # elif event == STOP_BUTTON:
     #     print("You pressed", event)
@@ -370,6 +406,9 @@ def main():
 
     # Create Window, call get_layout() to get layout.
     window = sg.Window('FlyShaker GUI', get_layout())
+
+    # Initialize empty experiment_thread object, will be used with "Start Experiment" is pushed
+    experiment_thread = threading.Thread()
 
     # Event Loop to process "events" and get the "values" of the inputs
 
