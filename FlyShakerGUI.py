@@ -115,6 +115,12 @@ START_EXPERIMENT = "Start Experiment"
 STOP_EXPERIMENT = "Stop Experiment"
 BUTTON_EVENTS = [PLAY_AUDIO_BUTTON, START_EXPERIMENT, STOP_EXPERIMENT]
 
+# Experiment Run Time
+HOURS_EXP_DEF = "0"
+HOURS_EXP_KEY = "-HOURS EXP-"
+MIN_EXP_DEF = "1"
+MIN_EXP_KEY = "-MIN EXP-"
+
 # ==== Non-GUI Variables ====
 is_running_experiment = False
 
@@ -262,6 +268,16 @@ def get_layout():
     # Put 2 columns into a frame (gives that box shape)
     pulse_frame = sg.Frame("Pulse Specifications", layout=pulse_col_layout)
 
+
+    # Experiment Layout
+    exp_layout = [[sg.Text("How long do I run the experiment?")],
+                  [sg.Push(), sg.Text("Hours:"), sg.Input(default_text="0", size=(4, 1), key=HOURS_EXP_KEY)],
+                  [sg.Push(), sg.Text("Min:"), sg.Input(default_text="1", size=(4, 1), key=MIN_EXP_KEY)],
+                  [sg.Button(START_EXPERIMENT), sg.Button(STOP_EXPERIMENT, disabled=True)]
+                  ]
+
+    exp_frame = sg.Frame("Experiment Parameters", layout=exp_layout)
+
     # Setup Layout
     layout = [[sg.Text('Choose a Wave Type (Sine or Pulse):'),
                sg.Radio(SINE, group_id=GROUP_ID, key=SINE, default=True),
@@ -269,10 +285,7 @@ def get_layout():
               [sine_frame],
               [pulse_frame],
               [sg.Button(PLAY_AUDIO_BUTTON)],
-              [sg.Text("How long do I run the experiment?")],
-              [sg.Text("Hours:"), sg.Input(default_text="0", size=(4, 1))],
-              [sg.Text("Min:"), sg.Input(default_text="1", size=(4, 1))],
-              [sg.Button("Start Experiment"), sg.Button("Stop Experiment", disabled=True)]
+              [exp_frame]
               ]
 
     return layout
@@ -294,8 +307,8 @@ def get_wave(values):
         print("Sine")
 
         # For troubleshooting, are the input values accessible?
-        for key in SINE_KEYS:
-            print(key, ":", values[key])
+        # for key in SINE_KEYS:
+        #     print(key, ":", values[key])
 
         amp = int(values[AMP_KEY])
         freq = int(values[FREQ_KEY])
@@ -331,15 +344,42 @@ def start_experiment(window, event, values):
 
     global is_running_experiment
 
+    start_time = time.monotonic()
+    elapsed_time = 0
+
+    hours_run_time = int(values[HOURS_EXP_KEY])
+    min_run_time = int(values[MIN_EXP_KEY])
+    expected_run_time = (hours_run_time * 60 * 60) + (min_run_time * 60)
+    print("expected_run_time:", expected_run_time, "seconds")
+
     wave_arr, wave_snd = get_wave(values)
-    W.play_audio(wave_snd)
-    for i in range(5):
+    # W.play_audio(wave_snd)
+
+    # while True:
+    #     W.play_audio(wave_snd)
+    #     current_time = time.monotonic()
+
+    while elapsed_time < expected_run_time:
+    # for i in range(5):
         W.play_audio(wave_snd)
         if not is_running_experiment:
             print(event, "was pressed")
             print("Stopping experiment after playing current audio sample")
             break
 
+        current_time = time.monotonic()
+        elapsed_time = current_time - start_time
+        print("elapsed_time:", elapsed_time, "second(s)")
+
+    print(f"Experiment has run for {elapsed_time:.2f} seconds")
+    # Convert seconds to hours
+    hours_elapsed = elapsed_time / 60 / 60
+
+    # Get the decimal hours (everything after the decimal, e.g. 5.2 hours so extract the 0.2)
+    #   This is the % 1, or mod 1 portion.
+    # Then convert to minutes by multiplying by 60
+    min_elapsed = (hours_elapsed % 1) * 60
+    print(f"or {hours_elapsed:.1f} hour(s) and {min_elapsed:.1f} minute(s)")
     set_stop_experiment_variables_and_buttons(window)
 
     pass
@@ -398,6 +438,7 @@ def event_manager(window, event, values):
         # wave_arr, wave_snd = get_wave(values)
         # W.play_audio(wave_snd)
         # start_experiment(values)
+        print(f"Will run experiment for {values[HOURS_EXP_KEY]} hour(s) and {values[MIN_EXP_KEY]} minute(s)")
 
         experiment_thread = threading.Thread(target=start_experiment, args=(window, event, values), daemon=True)
         experiment_thread.start()
