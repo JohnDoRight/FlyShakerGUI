@@ -322,8 +322,11 @@ def get_wave(values):
     return wave_arr, wave_snd
 
 
-def start_experiment(event, values):
+def start_experiment(window, event, values):
     # Runs the experiment for x hours and y minutes (in a thread)
+
+    global is_running_experiment
+
     wave_arr, wave_snd = get_wave(values)
     W.play_audio(wave_snd)
     for i in range(5):
@@ -332,6 +335,36 @@ def start_experiment(event, values):
             print(event, "was pressed")
             print("Stopping experiment after playing current audio sample")
             break
+
+    set_stop_experiment_variables_and_buttons(window)
+
+    pass
+
+
+def set_start_experiment_variables_and_buttons(window):
+    # Used when "Start Experiment" button is pressed
+    global is_running_experiment
+
+    # Used for stopping/starting the thread
+    # (allows user to have access to the main GUI when it would normally be frozen).
+    is_running_experiment = True
+    # print("is_running_experiment:", is_running_experiment)
+    # Disable Start Experiment Button, Enable Stop Experiment Button
+    window[START_EXPERIMENT].update(disabled=True)
+    window[STOP_EXPERIMENT].update(disabled=False)
+    pass
+
+
+def set_stop_experiment_variables_and_buttons(window):
+    # Used when "Stop Experiment" button is pressed or when the experiment is over.
+    global is_running_experiment
+
+    # Used for stopping/starting the thread
+    # (allows user to have access to the main GUI when it would normally be frozen).
+    is_running_experiment = False
+    # Disable Stop Experiment Button, Enable Start Experiment Button
+    window[START_EXPERIMENT].update(disabled=False)
+    window[STOP_EXPERIMENT].update(disabled=True)
     pass
 
 
@@ -350,11 +383,7 @@ def event_manager(window, event, values):
         W.play_audio(wave_snd)
 
     elif event == START_EXPERIMENT:
-        is_running_experiment = True
-        # print("is_running_experiment:", is_running_experiment)
-        # Disable Start Experiment Button, Enable Stop Experiment Button
-        window[START_EXPERIMENT].update(disabled=True)
-        window[STOP_EXPERIMENT].update(disabled=False)
+        set_start_experiment_variables_and_buttons(window)
         print("You pressed", event)
 
         # TODO: Add in a audio playback manager since there is redundancy with the "Play Audio" section.
@@ -366,21 +395,15 @@ def event_manager(window, event, values):
         # W.play_audio(wave_snd)
         # start_experiment(values)
 
-        experiment_thread = threading.Thread(target=start_experiment, args=(event, values), daemon=True)
+        experiment_thread = threading.Thread(target=start_experiment, args=(window, event, values), daemon=True)
         experiment_thread.start()
         # time.sleep(5)
 
     elif event == STOP_EXPERIMENT:
-        is_running_experiment = False
-        # print("is_running_experiment:", is_running_experiment)
-        # Disable Stop Experiment Button, Enable Start Experiment Button
-        window[START_EXPERIMENT].update(disabled=False)
-        window[STOP_EXPERIMENT].update(disabled=True)
+        set_stop_experiment_variables_and_buttons(window)
         print("You pressed", event)
-        # Stop thread, set prepares stopping
-        # thread_event.set()
 
-        # Stop experiemnt_thread
+        # Stop experiment_thread (not needed, but line may be needed later for troubleshooting if it crashes).
         # experiment_thread.join(timeout=1)
     # TODO: Decide to keep or remove the following buttons (stop, plot):
     # elif event == STOP_BUTTON:
@@ -408,7 +431,7 @@ def main():
     window = sg.Window('FlyShaker GUI', get_layout())
 
     # Initialize empty experiment_thread object, will be used with "Start Experiment" is pushed
-    experiment_thread = threading.Thread()
+    # experiment_thread = threading.Thread()
 
     # Event Loop to process "events" and get the "values" of the inputs
 
