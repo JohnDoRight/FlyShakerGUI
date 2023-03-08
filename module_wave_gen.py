@@ -34,6 +34,7 @@ def get_sine_wave(amp=16000, freq=200, dur=1.0, sample_rate=44100):
     :param freq: Hertz (Hz), Frequency of sine wave (Note: 1/freq is the period).
                  Default 200 for human audible troubleshooting.
     :param dur: The duration of the signal. Default 1.0 seconds.
+    :param burst: The duration + silence of the signal. Default 1.0 seconds, the length of duration.
     :param sample_rate: Hz, number of samples for a second.
                         Default is 44100 Hz.
                         TODO: Research this, related to pygame.mixer.init()?
@@ -53,6 +54,19 @@ def get_sine_wave(amp=16000, freq=200, dur=1.0, sample_rate=44100):
     # Usually the y-axis.
     sine_wave = amp * np.sin(2.0 * np.pi * freq * t)
 
+    # print("before:", sine_wave.shape)
+    # Implement burst here
+    # Calculate wait time, which is burst - dur
+    #   Formula: duration + wait time = burst.
+    # wait_time = burst - dur
+    # print("wait_time", wait_time)
+
+    # Convert wait time to number of zeroes (silence) to add to the end of sine_wave.
+    # Use sample_rate, if want to add 1 second of silence and sample rate is 44100, then 44100 zeroes will be added to the end.
+    # N = int(wait_time * sample_rate)
+    # print("N:", N)
+    # sine_wave = np.pad(sine_wave, (0, N), 'constant', constant_values=1)
+
     # Makes sure sound is 16 bit integers, as pygame.mixer is initialized to 16 bits.
     # Source: https://stackoverflow.com/a/10690879
     #         John, Canada, May 21, 2012
@@ -68,7 +82,8 @@ def get_sine_wave(amp=16000, freq=200, dur=1.0, sample_rate=44100):
     return sine_arr, sine_snd
 
 
-def play_audio(snd):
+def play_audio(snd, burst=1000):
+    # burst, time in milliseconds
     print("playing audio")
     fade_in=100     # rise time of sound time in milliseconds
     duration=1000   # time in milliseconds
@@ -87,17 +102,17 @@ def play_audio(snd):
     pygame.mixer.init(sampling_frequency, size, channels, buffer)
     sound = pygame.sndarray.make_sound(snd)
     sound.play(fade_ms=fade_in)
-    pygame.time.delay(duration)
+    pygame.time.delay(burst)
     sound.fadeout(fade_out)
     pygame.time.wait(fade_out)
     # pygame.mixer.quit()
     print("Done playing audio")
 
 
-def plot_waveform(wave_arr, dur=1.0, sample_rate=44100):
+def plot_waveform(wave_arr, plot_samples=1000, dur=1.0, sample_rate=44100):
 
     # Only plot the first 1000 values
-    PLOT_SAMPLES = 1000
+    # PLOT_SAMPLES = 1000
 
     # Generate time values (x-axis)
     ts = 1.0/sample_rate  # time step size
@@ -105,7 +120,10 @@ def plot_waveform(wave_arr, dur=1.0, sample_rate=44100):
     seconds_end = dur
     t = np.arange(seconds_start, seconds_end, ts)
 
-    plt.plot(t[0:PLOT_SAMPLES], wave_arr[0:PLOT_SAMPLES])
+
+    plt.plot(t[0:plot_samples], wave_arr[0:plot_samples])
+    # plt.plot(t, wave_arr)
+    # plt.plot(wave_arr)
     plt.ylabel('Amplitude')
     plt.xlabel('Time (s)')
     plt.show()
@@ -146,6 +164,7 @@ def main():
     # Test sinw wave plotting
     sine_arr, sine_snd = get_sine_wave(dur=1.0)
     plot_waveform(sine_arr, dur=1.0, sample_rate=44100)
+    play_audio(sine_snd, burst=10000)
 
 
     # Test map_function

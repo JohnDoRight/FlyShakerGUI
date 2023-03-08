@@ -387,6 +387,7 @@ def start_experiment(window, event, values):
 
     while elapsed_time < expected_run_time:
         # for i in range(5):
+        # TODO: Convert burst, from seconds to milliseconds
         W.play_audio(wave_snd)
         if not is_running_experiment:
             print(event, "was pressed")
