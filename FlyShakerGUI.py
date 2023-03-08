@@ -365,6 +365,24 @@ def get_wave(values):
     return wave_arr, wave_snd
 
 
+def get_burst(values):
+    # Get is_sine_wave
+    is_sine_wave = values[SINE]
+
+    # Initialize burst
+    burst = 0
+
+    # If sine, get sine burst, convert from seconds to milliseconds
+    if is_sine_wave:
+        # For Sine
+        burst = int(values[BURST_SINE_KEY]) * 1000
+    else:
+        # For Pulse
+        burst = int(values[BURST_P_KEY]) * 1000
+
+    return burst
+
+
 def start_experiment(window, event, values):
     # Runs the experiment for x hours and y minutes (in a thread)
 
@@ -387,8 +405,9 @@ def start_experiment(window, event, values):
 
     while elapsed_time < expected_run_time:
         # for i in range(5):
-        # TODO: Convert burst, from seconds to milliseconds
-        W.play_audio(wave_snd)
+        # Convert burst, from seconds to milliseconds
+        # Get burst value depending on sine/pulse selection
+        W.play_audio(wave_snd, burst=get_burst(values))
         if not is_running_experiment:
             print(event, "was pressed")
             print("Stopping experiment after playing current audio sample")
@@ -407,6 +426,10 @@ def start_experiment(window, event, values):
     # Then convert to minutes by multiplying by 60
     min_elapsed = (hours_elapsed % 1) * 60
     print(f"or {hours_elapsed:.1f} hour(s) and {min_elapsed:.1f} minute(s)")
+
+    # TODO: Bug: When pressing Stop Experiment while Experiment is going on, then pressing "Play Audio Sample"
+    #            will cause this error to show up: "main thread is not in main loop"
+    # Possible solution: Only have one of these below, or disable "Play Audio" until this thread/loop is done.
     set_stop_experiment_variables_and_buttons(window)
 
     pass
@@ -423,6 +446,7 @@ def set_start_experiment_variables_and_buttons(window):
     # Disable Start Experiment Button, Enable Stop Experiment Button
     window[START_EXPERIMENT].update(disabled=True)
     window[STOP_EXPERIMENT].update(disabled=False)
+    window[PLAY_AUDIO_BUTTON].update(disabled=True)
     pass
 
 
@@ -436,6 +460,7 @@ def set_stop_experiment_variables_and_buttons(window):
     # Disable Stop Experiment Button, Enable Start Experiment Button
     window[START_EXPERIMENT].update(disabled=False)
     window[STOP_EXPERIMENT].update(disabled=True)
+    window[PLAY_AUDIO_BUTTON].update(disabled=False)
     pass
 
 
@@ -451,7 +476,7 @@ def event_manager(window, event, values):
 
         # wave_arr is for plotting, wave_snd is for playing sound
         wave_arr, wave_snd = get_wave(values)
-        W.play_audio(wave_snd)
+        W.play_audio(wave_snd, get_burst(values))
 
     elif event == START_EXPERIMENT:
         set_start_experiment_variables_and_buttons(window)
