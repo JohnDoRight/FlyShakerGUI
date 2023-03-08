@@ -67,13 +67,24 @@ FREQ_KEY = "-FREQ-"
 FREQ_DEF = "200"
 AMP_KEY = "-AMP-"
 # AMP_DEF = "1"
-AMP_DEF = "16000"
+AMP_DEF = "50"
 DUR_KEY = "-DURATION-"
 DUR_DEF = "1"
 BURST_SINE_KEY = "-BURST-"
 BURST_SINE_DEF = "1"
 SINE_KEYS = [FREQ_KEY, AMP_KEY, DUR_KEY, BURST_SINE_KEY]
 SINE_DEFAULTS = [FREQ_DEF, AMP_DEF, DUR_DEF, BURST_SINE_DEF]
+
+# AMP Min/Max values, Actual Version
+# Used for the "to" part of MAP function in the module_wave_gen.py
+# underscores can be used as a "comma", but it's more for the human since the
+AMP_ACTUAL_MAX = 32_000
+AMP_ACTUAL_MIN = 1
+
+# AMP Min/Max values, User Version, what the user sees in the GUI
+# Used for the "from" part of MAP function in the module_wave_gen.py
+AMP_USER_MAX = 100
+AMP_USER_MIN = 1
 
 # Windows version to access the sine_wave image in the "img" folder
 # If os.path.join fails, uncomment this next line, but comment the other one to make the image loading work
@@ -123,6 +134,7 @@ MIN_EXP_KEY = "-MIN EXP-"
 
 # ==== Non-GUI Variables ====
 is_running_experiment = False
+
 
 # ---- [START] FUNCTIONS FOR INTEGER CHECK IN INPUT BOXES -----
 # TODO: Put in a module
@@ -197,7 +209,6 @@ def check_for_digits_in_key(key_str, values, window):
 
 
 def check_input_keys_for_non_digits(values, window):
-
     # Check Sine Wave Specifications for non-digits and removing them
     for key_str in SINE_KEYS:
         check_for_digits_in_key(key_str, values, window)
@@ -205,12 +216,13 @@ def check_input_keys_for_non_digits(values, window):
     # Check Pulse Wave Specifications for non-digits and removing them
     for key_str in PULSE_KEYS:
         check_for_digits_in_key(key_str, values, window)
+
+
 # ---- [END] FUNCTIONS FOR INTEGER CHECK IN INPUT BOXES -----
 
 
 # ---- [START] FUNCTIONS FOR Sine/Pulse input disabling -----
 def check_radio(window, values):
-
     if values[SINE] == True:
 
         # Enable Sine inputs
@@ -229,6 +241,8 @@ def check_radio(window, values):
         # Enable Pulse inputs
         for key in PULSE_KEYS:
             window[key].update(disabled=False)
+
+
 # ---- [END] FUNCTIONS FOR Sine/Pulse input disabling -----
 
 
@@ -236,10 +250,14 @@ def get_layout():
     # Separate function to create/get the layout for the GUI
 
     # Sine, Column 1
-    sine_col1_layout = [[sg.Push(), sg.Text("Frequency (10 to 200 Hz):"), sg.InputText(default_text=FREQ_DEF, size=(4, 1), key=FREQ_KEY)],
-                        [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_DEF, size=(4, 1), key=AMP_KEY)],
-                        [sg.Push(), sg.Text("Duration (seconds):"), sg.InputText(default_text=DUR_DEF, size=(4, 1), key=DUR_KEY)],
-                        [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_SINE_DEF, size=(4, 1), key=BURST_SINE_KEY)]
+    sine_col1_layout = [[sg.Push(), sg.Text("Frequency (10 to 200 Hz):"),
+                         sg.InputText(default_text=FREQ_DEF, size=(4, 1), key=FREQ_KEY)],
+                        [sg.Push(), sg.Text("Amplitude (1 to 100):"),
+                         sg.InputText(default_text=AMP_DEF, size=(4, 1), key=AMP_KEY)],
+                        [sg.Push(), sg.Text("Duration (seconds):"),
+                         sg.InputText(default_text=DUR_DEF, size=(4, 1), key=DUR_KEY)],
+                        [sg.Push(), sg.Text("Burst Period (seconds):"),
+                         sg.InputText(default_text=BURST_SINE_DEF, size=(4, 1), key=BURST_SINE_KEY)]
                         ]
 
     # Sine, Column 2
@@ -252,11 +270,16 @@ def get_layout():
     sine_frame = sg.Frame("Sine Specifications", layout=sine_col_layout)
 
     # Pulse, Column 1
-    pulse_col1_layout = [[sg.Push(), sg.Text("Width (msec):"), sg.InputText(default_text=WIDTH_DEF, disabled=False, size=(4, 1), key=WIDTH_KEY)],
-                         [sg.Push(), sg.Text("Period (msec):"), sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
-                         [sg.Push(), sg.Text("Amplitude (1 to 100):"), sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
-                         [sg.Push(), sg.Text("Count (1 to 32,000):"), sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
-                         [sg.Push(), sg.Text("Burst Period (seconds):"), sg.InputText(default_text=BURST_P_DEF, size=(4, 1), key=BURST_P_KEY)]
+    pulse_col1_layout = [[sg.Push(), sg.Text("Width (msec):"),
+                          sg.InputText(default_text=WIDTH_DEF, disabled=False, size=(4, 1), key=WIDTH_KEY)],
+                         [sg.Push(), sg.Text("Period (msec):"),
+                          sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
+                         [sg.Push(), sg.Text("Amplitude (1 to 100):"),
+                          sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
+                         [sg.Push(), sg.Text("Count (1 to 32,000):"),
+                          sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
+                         [sg.Push(), sg.Text("Burst Period (seconds):"),
+                          sg.InputText(default_text=BURST_P_DEF, size=(4, 1), key=BURST_P_KEY)]
                          ]
 
     # Pulse, Column 2
@@ -267,7 +290,6 @@ def get_layout():
 
     # Put 2 columns into a frame (gives that box shape)
     pulse_frame = sg.Frame("Pulse Specifications", layout=pulse_col_layout)
-
 
     # Experiment Layout
     exp_layout = [[sg.Text("How long do I run the experiment?")],
@@ -310,9 +332,13 @@ def get_wave(values):
         # for key in SINE_KEYS:
         #     print(key, ":", values[key])
 
-        amp = int(values[AMP_KEY])
+        amp_user = int(values[AMP_KEY])
         freq = int(values[FREQ_KEY])
         dur = float(values[DUR_KEY])
+
+        # Convert user's AMP selection of 1-100 (user) to 1-32000 (actual)
+        amp = W.map_function(amp_user, from_low=AMP_USER_MIN, from_high=AMP_USER_MAX,
+                             to_low=AMP_ACTUAL_MIN, to_high=AMP_ACTUAL_MAX)
 
         # sine_arr, sine_snd = W.get_sine_wave(dur=1.0)
         sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
@@ -360,7 +386,7 @@ def start_experiment(window, event, values):
     #     current_time = time.monotonic()
 
     while elapsed_time < expected_run_time:
-    # for i in range(5):
+        # for i in range(5):
         W.play_audio(wave_snd)
         if not is_running_experiment:
             print(event, "was pressed")
@@ -455,13 +481,13 @@ def event_manager(window, event, values):
     #     print("You pressed", event)
     # elif event == PLOT_BUTTON:
     #     print("You pressed", event)
-        # amp = int(values[AMP_KEY])
-        # freq = int(values[FREQ_KEY])
-        # dur = float(values[DUR_KEY])
-        #
-        # sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
-        # W.plot_waveform(sine_arr, dur)
-        # # BUG: Shrinks GUI. Maybe use PySimpleGUI to plot it. Or don't have this button at all.
+    # amp = int(values[AMP_KEY])
+    # freq = int(values[FREQ_KEY])
+    # dur = float(values[DUR_KEY])
+    #
+    # sine_arr, sine_snd = W.get_sine_wave(amp, freq, dur)
+    # W.plot_waveform(sine_arr, dur)
+    # # BUG: Shrinks GUI. Maybe use PySimpleGUI to plot it. Or don't have this button at all.
 
     pass
 
