@@ -10,8 +10,8 @@ GUI using Thomas Zimmerman's wave generator code for Dr. Divya Sitaraman's droso
 [Note: Put in Tom's CCC and IBM funding section here.]
 
 TODO:
--Have time elapsed, start/end time for playing/stopping waveform
--TODO: Put hours/min into a frame and right-aligned. Maybe the Start/Stop Button too
+-Get Pulse working.
+-Fix main thread not in main loop bug.
 -Disable input boxes based on Radio Sine/Pulse selection?
 Possible solutions to that:
 https://www.pysimplegui.org/en/latest/cookbook/#recipe-collapsible-sections-visible-invisible-elements
