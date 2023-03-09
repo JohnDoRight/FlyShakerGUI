@@ -293,8 +293,8 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    main2()
-    # main3()
+    # main2()
+    main3()
     # get_square_wave3()
     # get_square_wave4()
 

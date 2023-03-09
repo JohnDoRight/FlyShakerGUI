@@ -11,6 +11,14 @@ Description:
 Wave generation module for sine and pulse waves (aka pulse trains)
 to be used in the FlyShakerGUI.
 
+Pulse wave calculations for Duty Cycle and Period from
+https://www.youtube.com/watch?v=pFl-swR8BRo
+The Organic Chemistry Tutor, 2020
+
+Note: Burst Period can cut into wave creation, so will only be applied on playback.
+If Burst Period is larger than Duration, silence will be "added".
+If Burst Period is less than Duration, then audio playback will be cut short.
+
 """
 
 import matplotlib.pyplot as plt
@@ -34,7 +42,6 @@ def get_sine_wave(amp=16000, freq=200, dur=1.0, sample_rate=44100):
     :param freq: Hertz (Hz), Frequency of sine wave (Note: 1/freq is the period).
                  Default 200 for human audible troubleshooting.
     :param dur: The duration of the signal. Default 1.0 seconds.
-    :param burst: The duration + silence of the signal. Default 1.0 seconds, the length of duration.
     :param sample_rate: Hz, number of samples for a second.
                         Default is 44100 Hz.
                         TODO: Research this, related to pygame.mixer.init()?
@@ -82,6 +89,25 @@ def get_sine_wave(amp=16000, freq=200, dur=1.0, sample_rate=44100):
     return sine_arr, sine_snd
 
 
+def get_square_wave():
+    # Recommended inputs:
+    #  amp=16000, freq=200, dur=1.0, sample_rate=44100
+    #  make freq into pulse count
+    #  Duty Cycle = (Pulse Width / Period) * 100%
+    #    more inputs: pulse width and period, use these to calculate duty cycle
+    #  Note: Burst is for playback
+
+    # Use sine's time array creation
+
+    # Calculate duty cycle
+
+    # square_wave = amp * signal.square(2.0 * numpy.pi * freq * t, duty=duty_cycle)
+
+    # Follow the rest of sine function here too.
+
+    pass
+
+
 def play_audio(snd, burst=1000):
     # burst, time in milliseconds
     print("playing audio")
@@ -92,6 +118,7 @@ def play_audio(snd, burst=1000):
     # TODO: Decide where to initialize pygame.mixer (as global?)
     #       Notes: only needs to be initialized once, can put in main.
     # TODO: Figure out where to quit the mixer.
+    # TODO: Where to put the pygame init constants, at the beginning?
     # Initialize pygame.mixer.init()
     # Refer to pygame docs for more info about each variable:
     # https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.init
