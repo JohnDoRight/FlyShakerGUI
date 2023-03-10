@@ -19,6 +19,8 @@ Note: Burst Period can cut into wave creation, so will only be applied on playba
 If Burst Period is larger than Duration, silence will be "added".
 If Burst Period is less than Duration, then audio playback will be cut short.
 
+TODO: Try Pulse Gen following Example 1 from MIT:
+https://www.programcreek.com/python/example/100545/scipy.signal.square
 """
 
 import matplotlib.pyplot as plt
@@ -157,6 +159,62 @@ def get_pulse_wave(amp=16000, period=1000, pulse_width=500, pulse_count=200, dur
     return pulse_arr, pulse_snd
 
 
+def get_pulse_wave2(amp=16000, freq=200, duty_cycle=0.5, dur=1.0, sample_rate=44100):
+    """
+    Generates 2 pulse_wave arrays, one for plotting, another for audio playback with PyGame.
+
+    Note: Duty Cycle = Pulse Width / Period. Duty Cycle is a value between 0 and 1,
+          you can think of it as a percentage if you multiply the result by 100.
+          So 0.5 calculated from the formula above results in 50% duty cycle.
+
+    :param amp: an int, value from 1 to 32,000 (max); no unit. Max amp value found by Thomas Zimmerman.
+    :param freq: Hertz (Hz), Frequency of sine wave (Note: 1/freq is the period).
+                 Default 200 for human audible troubleshooting.
+    :param duty_cycle: a float, value from 0 to 1; no unit.
+    :param dur: a float, unit: seconds. Determines time length of square wave.
+                Note: Burst Period in play_audio determines how short or long playback actually is.
+    :param sample_rate: Hz, number of samples for a second.
+                        Default is 44100 Hz.
+    :return: pulse_arr (for plotting), pulse_snd (for audio playback in PyGame, might be stereo)
+    """
+
+    # Use sine's time array creation
+    ts = 1.0/sample_rate  # time step size
+    seconds_start = 0
+    seconds_end = dur
+    t = np.arange(seconds_start, seconds_end, ts)
+
+    # Calculate duty cycle
+    # duty_cycle = pulse_width / period
+    # Get period from freq
+    period = 1 / freq
+    print("period:", period * 1000, "msec")
+    # Get pulse_width from duty_cycle and period
+    pulse_width = duty_cycle * period
+    print("pulse_width:", pulse_width * 1000, "msec")
+    # Print the results
+
+    # For purposes of calculations, pulse_count is playing role of frequency.
+    # Reasoning: I couldn't figure out how to make it work any other way and even scipy.signal uses frequency.
+    #            Bug: if using pulse count and period to create time array above,
+    #                 it creates a ridiculously long array that causes my computer to crash.
+    # Reasoning 2: Pulse Count appears to act similar to Frequency since I think "Frequency Counting" is related, maybe?
+    pulse_wave = amp * signal.square(2.0 * np.pi * freq * t, duty=duty_cycle)
+
+    # Makes sure sound is 16 bit integers, as pygame.mixer is initialized to 16 bits.
+    # Refer to get_sine_wave() for more details
+    arr = pulse_wave.astype(np.int16)
+
+    # Create pygame.mixer compatible array
+    arr2 = np.c_[arr,arr]
+
+    # pulse_arr: for plotting (a vector)
+    # pulse_snd: square wave sound (snd) for audio playback in pygame (2 vectors, or stereo)
+    pulse_arr = arr
+    pulse_snd = arr2
+    return pulse_arr, pulse_snd
+
+
 def play_audio(snd, burst=1000):
     # burst, time in milliseconds
     print("playing audio")
@@ -268,19 +326,28 @@ def main():
     # Pulse Wave: Test same freq, different duty cycle
     # --------------------------------
     # pulse_width = 10 # milliseconds, only used for duty cycle calculation
-    period = 500      # milliseconds, only used for duty cycle calculation
-    pulse_count = 200 # unitless, but treat it as frequency, so Hz
-    burst = 1000      # milliseconds
-    duration = 1.0    # seconds
+    # period = 500      # milliseconds, only used for duty cycle calculation
+    # pulse_count = 200 # unitless, but treat it as frequency, so Hz
+    # burst = 1000      # milliseconds
+    # duration = 1.0    # seconds
+    #
+    # for pulse_width in range(0, period + 50, 50):
+    #     print("pulse_width:", pulse_width)
+    #     print("duty cycle:", pulse_width / period)
+    #     pulse_arr, pulse_snd = get_pulse_wave(period=period, pulse_width=pulse_width, pulse_count=pulse_count, dur=duration)
+    #     plot_waveform(pulse_arr, dur=duration, sample_rate=44100)
+    #     play_audio(pulse_snd, burst=burst)
 
-    for pulse_width in range(0, period + 50, 50):
-        print("pulse_width:", pulse_width)
-        print("duty cycle:", pulse_width / period)
-        pulse_arr, pulse_snd = get_pulse_wave(period=period, pulse_width=pulse_width, pulse_count=pulse_count, dur=duration)
-        plot_waveform(pulse_arr, dur=duration, sample_rate=44100)
-        play_audio(pulse_snd, burst=burst)
-
-
+    # --------------------------------
+    # Pulse Wave 2: Test get_pulse_wave2()
+    # --------------------------------
+    freq = 1000
+    duty_cycle = 0.5
+    duration = 1.0
+    burst = 1000
+    pulse_arr, pulse_snd = get_pulse_wave2(amp=16000, freq=freq, duty_cycle=duty_cycle, dur=duration, sample_rate=44100)
+    plot_waveform(pulse_arr, dur=duration, sample_rate=44100)
+    play_audio(pulse_snd, burst=burst)
 
     # --------------------------------
     # Test different pulse counts
