@@ -244,7 +244,9 @@ def get_pulse_wave3(amp=16000, period=200, duty_cycle=0.5, dur=1.0, sample_rate=
     # Calculate duty cycle
     # duty_cycle = pulse_width / period
     # Get period from freq
-    freq = 1 / (period / 1000)
+    # Convert period msec to sec (1000 msec = 1 sec)
+    period_sec = period / 1000
+    freq = 1 / (period_sec)
     print("freq:", freq, "Hz")
     # Get pulse_width from duty_cycle and period
     pulse_width = duty_cycle * period
@@ -256,7 +258,7 @@ def get_pulse_wave3(amp=16000, period=200, duty_cycle=0.5, dur=1.0, sample_rate=
     #            Bug: if using pulse count and period to create time array above,
     #                 it creates a ridiculously long array that causes my computer to crash.
     # Reasoning 2: Pulse Count appears to act similar to Frequency since I think "Frequency Counting" is related, maybe?
-    pulse_wave = amp * signal.square(2.0 * np.pi * t / (period / 1000), duty=duty_cycle)
+    pulse_wave = amp * signal.square(2.0 * np.pi * t / period_sec, duty=duty_cycle)
 
     # Makes sure sound is 16 bit integers, as pygame.mixer is initialized to 16 bits.
     # Refer to get_sine_wave() for more details
@@ -409,13 +411,19 @@ def main():
     # --------------------------------
     # Pulse Wave 3: Test get_pulse_wave3()
     # --------------------------------
-    period = 20
-    duty_cycle = 0.5
-    duration = 1.0
-    burst = 1000
-    pulse_arr, pulse_snd = get_pulse_wave3(amp=16000, period=period, duty_cycle=duty_cycle, dur=duration, sample_rate=44100)
-    plot_waveform(pulse_arr, dur=duration, sample_rate=44100)
+    period = 50      # in msec
+    duty_cycle = 0.5 # unitless, value from 0 to 1
+    duration = 1.0   # in sec
+    burst = 1000     # in msec
+    pulse_arr, pulse_snd = get_pulse_wave3(amp=16000, period=period, duty_cycle=duty_cycle, dur=duration, sample_rate=32000)
+    plot_waveform(pulse_arr, dur=duration, sample_rate=32000)
     play_audio(pulse_snd, burst=burst)
+
+    # for period in range(1, 50, 1):
+    #     print("period:", period, " msec")
+    #     pulse_arr, pulse_snd = get_pulse_wave3(amp=16000, period=period, duty_cycle=duty_cycle, dur=duration, sample_rate=44100)
+    #     plot_waveform(pulse_arr, dur=duration, sample_rate=44100)
+    #     play_audio(pulse_snd, burst=burst)
 
     # --------------------------------
     # Test different pulse counts

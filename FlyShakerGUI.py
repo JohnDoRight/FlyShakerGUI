@@ -10,8 +10,6 @@ GUI using Thomas Zimmerman's wave generator code for Dr. Divya Sitaraman's droso
 [Note: Put in Tom's CCC and IBM funding section here.]
 
 TODO:
--Fix main thread not in main loop bug.
-
 -Disable input boxes based on Radio Sine/Pulse selection?
 Possible solutions to that:
 https://www.pysimplegui.org/en/latest/cookbook/#recipe-collapsible-sections-visible-invisible-elements
@@ -25,6 +23,7 @@ https://stackoverflow.com/questions/736043/checking-if-a-string-can-be-converted
 https://www.geeksforgeeks.org/python-check-for-float-string/
 
 Changelog:
+3-10-2023: Fixed main thread bug, just put in flag for Stop Experiment Button.
 3-10-2023: Version 1 complete. Sine/Pulse wave creation works and experiment works.
 2-11-2023: Added in sine/pulse specifications and radio.
            Put sections in frames, spec/img to columns.
@@ -516,7 +515,8 @@ def event_manager(window, event, values):
         # time.sleep(5)
 
     elif event == STOP_EXPERIMENT:
-        set_stop_experiment_variables_and_buttons(window)
+        # set_stop_experiment_variables_and_buttons(window)
+        is_running_experiment = False
         print("You pressed", event)
 
         # Stop experiment_thread (not needed, but line may be needed later for troubleshooting if it crashes).
