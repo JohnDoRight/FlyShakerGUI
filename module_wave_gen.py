@@ -125,6 +125,7 @@ def get_square_wave(amp=16000, period=1000, pulse_width=500, pulse_count=200, du
     #   So it's good burst period is there to control how long things are played.
     # dur = (period / 1000) * pulse_count
     # print("dur:", dur)
+    # Bug: don't do this! Creates a large array that crashed my computer if pulse count is high enough.
 
     # Use sine's time array creation
     ts = 1.0/sample_rate  # time step size
@@ -223,24 +224,26 @@ def map_function(value, from_low, from_high, to_low, to_high):
     return int(result)
 
 
-def audio_playback_manager():
-    pass
-
-
 def main():
     print("main")
 
+    # --------------------------------
     # Test sine wave audio playback
+    # --------------------------------
     # sine_arr, sine_snd = get_sine_wave(dur=1.0)
     # play_audio(sine_snd)
     # play_audio(sine_snd)
 
+    # --------------------------------
     # Test sine wave plotting
+    # --------------------------------
     # sine_arr, sine_snd = get_sine_wave(dur=1.0)
     # plot_waveform(sine_arr, dur=1.0, sample_rate=44100)
     # play_audio(sine_snd, burst=10000)
 
+    # --------------------------------
     # Test square wave plotting
+    # --------------------------------
     # Period and pulse_width are in msec
     # Duty Cycle is pulse_width / period, and is a value between 0 and 1
     #   e.g. if you want 0.5 duty cycle (or 50%), pulse_width needs to be half of the period.
@@ -253,15 +256,26 @@ def main():
     plot_waveform(square_arr, dur=duration, sample_rate=44100)
     play_audio(square_snd, burst=burst)
 
+    # --------------------------------
+    # Listening test for square and sine with same freq and pulse count.
+    # --------------------------------
+    freq = 200
+    sine_arr, sine_snd = get_sine_wave(freq=freq, dur=duration)
+    plot_waveform(sine_arr, dur=duration, sample_rate=44100)
+    play_audio(sine_snd, burst=burst)
+
+    # --------------------------------
     # Test different pulse counts
+    # --------------------------------
     # for pulse_count in range(1, 32000, 5000):
     #     square_arr, square_snd = get_square_wave(pulse_count=pulse_count, dur=1.0)
     #     plot_waveform(square_arr, dur=1.0, sample_rate=44100)
     #     play_audio(square_snd, burst=1000)
     #     # TODO: Put in way to smartly detect duty cycle and choose plot sample so square wave is visible?
 
-
+    # --------------------------------
     # Test map_function
+    # --------------------------------
     # value = 41
     # from_low = 0
     # from_high = 100
