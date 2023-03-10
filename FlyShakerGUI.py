@@ -101,9 +101,9 @@ SINE_IMG = os.path.join(sourceFileDir, imgFolderDir, 'sine_wave.png')
 # -----------------------
 # Note: "P" means "Pulse"
 WIDTH_KEY = "-PULSE WIDTH-"
-WIDTH_DEF = "1"
+WIDTH_DEF = "250"
 PERIOD_KEY = "-PULSE PERIOD-"
-PERIOD_DEF = "1"
+PERIOD_DEF = "500"
 AMP_P_KEY = "-PULSE AMPLITUDE-"
 AMP_P_DEF = "50"
 COUNT_KEY = "-PULSE COUNT-"
@@ -365,7 +365,7 @@ def get_wave(values):
         period_p = int(values[PERIOD_KEY])
         amp_p_user = int(values[AMP_P_KEY])
         count_p = int(values[COUNT_KEY])
-        dur_p = int(values[DUR_P_DEF])
+        dur_p = int(values[DUR_P_KEY])
         burst_p = int(values[BURST_P_KEY])
 
         # Convert user's AMP selection of 1-100 (user) to 1-32000 (actual)
@@ -373,7 +373,9 @@ def get_wave(values):
                                to_low=AMP_ACTUAL_MIN, to_high=AMP_ACTUAL_MAX)
 
         # Get Pulse Wave array and sound array
-        square_arr, square_snd = W.get_pulse_wave(period=period, pulse_width=pulse_width, pulse_count=pulse_count, dur=duration)
+        square_arr, square_snd = W.get_pulse_wave(amp=amp_p, period=period_p, pulse_width=width_p, pulse_count=count_p, dur=dur_p)
+        wave_arr = square_arr
+        wave_snd = square_snd
 
     # return wave_arr and wave_snd
     return wave_arr, wave_snd
