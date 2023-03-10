@@ -215,6 +215,63 @@ def get_pulse_wave2(amp=16000, freq=200, duty_cycle=0.5, dur=1.0, sample_rate=44
     return pulse_arr, pulse_snd
 
 
+def get_pulse_wave3(amp=16000, period=200, duty_cycle=0.5, dur=1.0, sample_rate=44100):
+    """
+    Generates 2 pulse_wave arrays, one for plotting, another for audio playback with PyGame.
+
+    Code inspired from https://www.programcreek.com/python/example/100545/scipy.signal.square
+
+    Note: Duty Cycle = Pulse Width / Period. Duty Cycle is a value between 0 and 1,
+          you can think of it as a percentage if you multiply the result by 100.
+          So 0.5 calculated from the formula above results in 50% duty cycle.
+
+    :param amp: an int, value from 1 to 32,000 (max); no unit. Max amp value found by Thomas Zimmerman.
+    :param period: an int, unit: msec.
+    :param duty_cycle: a float, value from 0 to 1; no unit.
+    :param dur: a float, unit: seconds. Determines time length of square wave.
+                Note: Burst Period in play_audio determines how short or long playback actually is.
+    :param sample_rate: Hz, number of samples for a second.
+                        Default is 44100 Hz.
+    :return: pulse_arr (for plotting), pulse_snd (for audio playback in PyGame, might be stereo)
+    """
+
+    # Use sine's time array creation
+    ts = 1.0/sample_rate  # time step size
+    seconds_start = 0
+    seconds_end = dur
+    t = np.arange(seconds_start, seconds_end, ts)
+
+    # Calculate duty cycle
+    # duty_cycle = pulse_width / period
+    # Get period from freq
+    freq = 1 / (period / 1000)
+    print("freq:", freq, "Hz")
+    # Get pulse_width from duty_cycle and period
+    pulse_width = duty_cycle * period
+    print("pulse_width:", pulse_width, "msec")
+    # Print the results
+
+    # For purposes of calculations, pulse_count is playing role of frequency.
+    # Reasoning: I couldn't figure out how to make it work any other way and even scipy.signal uses frequency.
+    #            Bug: if using pulse count and period to create time array above,
+    #                 it creates a ridiculously long array that causes my computer to crash.
+    # Reasoning 2: Pulse Count appears to act similar to Frequency since I think "Frequency Counting" is related, maybe?
+    pulse_wave = amp * signal.square(2.0 * np.pi * t / (period / 1000), duty=duty_cycle)
+
+    # Makes sure sound is 16 bit integers, as pygame.mixer is initialized to 16 bits.
+    # Refer to get_sine_wave() for more details
+    arr = pulse_wave.astype(np.int16)
+
+    # Create pygame.mixer compatible array
+    arr2 = np.c_[arr,arr]
+
+    # pulse_arr: for plotting (a vector)
+    # pulse_snd: square wave sound (snd) for audio playback in pygame (2 vectors, or stereo)
+    pulse_arr = arr
+    pulse_snd = arr2
+    return pulse_arr, pulse_snd
+
+
 def play_audio(snd, burst=1000):
     # burst, time in milliseconds
     print("playing audio")
@@ -341,11 +398,22 @@ def main():
     # --------------------------------
     # Pulse Wave 2: Test get_pulse_wave2()
     # --------------------------------
-    freq = 1000
+    # freq = 1000
+    # duty_cycle = 0.5
+    # duration = 1.0
+    # burst = 1000
+    # pulse_arr, pulse_snd = get_pulse_wave2(amp=16000, freq=freq, duty_cycle=duty_cycle, dur=duration, sample_rate=44100)
+    # plot_waveform(pulse_arr, dur=duration, sample_rate=44100)
+    # play_audio(pulse_snd, burst=burst)
+
+    # --------------------------------
+    # Pulse Wave 3: Test get_pulse_wave3()
+    # --------------------------------
+    period = 20
     duty_cycle = 0.5
     duration = 1.0
     burst = 1000
-    pulse_arr, pulse_snd = get_pulse_wave2(amp=16000, freq=freq, duty_cycle=duty_cycle, dur=duration, sample_rate=44100)
+    pulse_arr, pulse_snd = get_pulse_wave3(amp=16000, period=period, duty_cycle=duty_cycle, dur=duration, sample_rate=44100)
     plot_waveform(pulse_arr, dur=duration, sample_rate=44100)
     play_audio(pulse_snd, burst=burst)
 
