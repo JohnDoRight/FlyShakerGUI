@@ -60,7 +60,9 @@ SINE = 'Sine'
 PULSE = 'Pulse'
 GROUP_ID = "RADIO1"
 
+# -----------------------
 # SINE SPECIFICATIONS
+# -----------------------
 # Note: "DEF" means "Default"
 FREQ_KEY = "-FREQ-"
 # FREQ_DEF = "10"
@@ -94,20 +96,24 @@ AMP_USER_MIN = 1
 # Note: If you change the "img" folder name or location, this will crash the GUI.
 SINE_IMG = os.path.join(sourceFileDir, imgFolderDir, 'sine_wave.png')
 
+# -----------------------
 # PULSE SPECIFICATIONS
+# -----------------------
 # Note: "P" means "Pulse"
 WIDTH_KEY = "-PULSE WIDTH-"
 WIDTH_DEF = "1"
 PERIOD_KEY = "-PULSE PERIOD-"
 PERIOD_DEF = "1"
 AMP_P_KEY = "-PULSE AMPLITUDE-"
-AMP_P_DEF = "1"
+AMP_P_DEF = "50"
 COUNT_KEY = "-PULSE COUNT-"
-COUNT_DEF = "1"
+COUNT_DEF = "200"
+DUR_P_KEY = "-PULSE DURATION-"
+DUR_P_DEF = "1"
 BURST_P_KEY = "-PULSE BURST PERIOD-"
 BURST_P_DEF = "1"
-PULSE_KEYS = [WIDTH_KEY, PERIOD_KEY, AMP_P_KEY, COUNT_KEY, BURST_P_KEY]
-PULSE_DEFAULTS = [WIDTH_DEF, PERIOD_DEF, AMP_P_DEF, COUNT_DEF, BURST_P_DEF]
+PULSE_KEYS = [WIDTH_KEY, PERIOD_KEY, AMP_P_KEY, COUNT_KEY, DUR_P_KEY, BURST_P_KEY]
+PULSE_DEFAULTS = [WIDTH_DEF, PERIOD_DEF, AMP_P_DEF, COUNT_DEF, DUR_P_DEF, BURST_P_DEF]
 
 # Windows version to access the pulse_wave image in the "img" folder
 # If os.path.join fails, uncomment this next line, but comment the other one to make the image loading work
@@ -278,6 +284,8 @@ def get_layout():
                           sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
                          [sg.Push(), sg.Text("Count (1 to 32,000):"),
                           sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
+                         [sg.Push(), sg.Text("Duration (seconds):"),
+                          sg.InputText(default_text=DUR_P_DEF, size=(4, 1), key=DUR_P_KEY)],
                          [sg.Push(), sg.Text("Burst Period (seconds):"),
                           sg.InputText(default_text=BURST_P_DEF, size=(4, 1), key=BURST_P_KEY)]
                          ]
@@ -355,11 +363,17 @@ def get_wave(values):
 
         width_p = int(values[WIDTH_KEY])
         period_p = int(values[PERIOD_KEY])
-        amp_p = int(values[AMP_P_KEY])
+        amp_p_user = int(values[AMP_P_KEY])
         count_p = int(values[COUNT_KEY])
+        dur_p = int(values[DUR_P_DEF])
         burst_p = int(values[BURST_P_KEY])
 
+        # Convert user's AMP selection of 1-100 (user) to 1-32000 (actual)
+        amp_p = W.map_function(amp_p_user, from_low=AMP_USER_MIN, from_high=AMP_USER_MAX,
+                               to_low=AMP_ACTUAL_MIN, to_high=AMP_ACTUAL_MAX)
+
         # Get Pulse Wave array and sound array
+        square_arr, square_snd = W.get_pulse_wave(period=period, pulse_width=pulse_width, pulse_count=pulse_count, dur=duration)
 
     # return wave_arr and wave_snd
     return wave_arr, wave_snd

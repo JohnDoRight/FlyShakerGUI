@@ -89,9 +89,9 @@ def get_sine_wave(amp=16000, freq=200, dur=1.0, sample_rate=44100):
     return sine_arr, sine_snd
 
 
-def get_square_wave(amp=16000, period=1000, pulse_width=500, pulse_count=200, dur=1.0, sample_rate=44100):
+def get_pulse_wave(amp=16000, period=1000, pulse_width=500, pulse_count=200, dur=1.0, sample_rate=44100):
     """
-    Generates 2 square_wave arrays, one for plotting, another for audio playback with PyGame.
+    Generates 2 pulse_wave arrays, one for plotting, another for audio playback with PyGame.
 
     Note: Duty Cycle = Pulse Width / Period. Duty Cycle is a value between 0 and 1,
           you can think of it as a percentage if you multiply the result by 100.
@@ -109,7 +109,7 @@ def get_square_wave(amp=16000, period=1000, pulse_width=500, pulse_count=200, du
                 Note: Burst Period in play_audio determines how short or long playback actually is.
     :param sample_rate: Hz, number of samples for a second.
                         Default is 44100 Hz.
-    :return: square_arr (for plotting), square_snd (for audio playback in PyGame, might be stereo)
+    :return: pulse_arr (for plotting), pulse_snd (for audio playback in PyGame, might be stereo)
     """
     # Recommended inputs:
     #  amp=16000, freq=200, dur=1.0, sample_rate=44100
@@ -141,20 +141,20 @@ def get_square_wave(amp=16000, period=1000, pulse_width=500, pulse_count=200, du
     #            Bug: if using pulse count and period to create time array above,
     #                 it creates a ridiculously long array that causes my computer to crash.
     # Reasoning 2: Pulse Count appears to act similar to Frequency since I think "Frequency Counting" is related, maybe?
-    square_wave = amp * signal.square(2.0 * np.pi * pulse_count * t, duty=duty_cycle)
+    pulse_wave = amp * signal.square(2.0 * np.pi * pulse_count * t, duty=duty_cycle)
 
     # Makes sure sound is 16 bit integers, as pygame.mixer is initialized to 16 bits.
     # Refer to get_sine_wave() for more details
-    arr = square_wave.astype(np.int16)
+    arr = pulse_wave.astype(np.int16)
 
     # Create pygame.mixer compatible array
     arr2 = np.c_[arr,arr]
 
-    # square_arr: for plotting (a vector)
-    # square_snd: square wave sound (snd) for audio playback in pygame (2 vectors, or stereo)
-    square_arr = arr
-    square_snd = arr2
-    return square_arr, square_snd
+    # pulse_arr: for plotting (a vector)
+    # pulse_snd: square wave sound (snd) for audio playback in pygame (2 vectors, or stereo)
+    pulse_arr = arr
+    pulse_snd = arr2
+    return pulse_arr, pulse_snd
 
 
 def play_audio(snd, burst=1000):
@@ -252,9 +252,9 @@ def main():
     pulse_count = 200 # unitless, but treat it as frequency, so Hz
     burst = 4000      # milliseconds
     duration = 2.0    # seconds
-    square_arr, square_snd = get_square_wave(period=period, pulse_width=pulse_width, pulse_count=pulse_count, dur=duration)
-    plot_waveform(square_arr, dur=duration, sample_rate=44100)
-    play_audio(square_snd, burst=burst)
+    pulse_arr, pulse_snd = get_pulse_wave(period=period, pulse_width=pulse_width, pulse_count=pulse_count, dur=duration)
+    plot_waveform(pulse_arr, dur=duration, sample_rate=44100)
+    play_audio(pulse_snd, burst=burst)
 
     # --------------------------------
     # Listening test for square and sine with same freq and pulse count.
