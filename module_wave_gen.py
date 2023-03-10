@@ -247,22 +247,40 @@ def main():
     # Period and pulse_width are in msec
     # Duty Cycle is pulse_width / period, and is a value between 0 and 1
     #   e.g. if you want 0.5 duty cycle (or 50%), pulse_width needs to be half of the period.
-    pulse_width = 250 # milliseconds, only used for duty cycle calculation
-    period = 500      # milliseconds, only used for duty cycle calculation
-    pulse_count = 200 # unitless, but treat it as frequency, so Hz
-    burst = 4000      # milliseconds
-    duration = 2.0    # seconds
-    pulse_arr, pulse_snd = get_pulse_wave(period=period, pulse_width=pulse_width, pulse_count=pulse_count, dur=duration)
-    plot_waveform(pulse_arr, dur=duration, sample_rate=44100)
-    play_audio(pulse_snd, burst=burst)
+    # pulse_width = 250 # milliseconds, only used for duty cycle calculation
+    # period = 500      # milliseconds, only used for duty cycle calculation
+    # pulse_count = 200 # unitless, but treat it as frequency, so Hz
+    # burst = 4000      # milliseconds
+    # duration = 2.0    # seconds
+    # pulse_arr, pulse_snd = get_pulse_wave(period=period, pulse_width=pulse_width, pulse_count=pulse_count, dur=duration)
+    # plot_waveform(pulse_arr, dur=duration, sample_rate=44100)
+    # play_audio(pulse_snd, burst=burst)
 
     # --------------------------------
     # Listening test for square and sine with same freq and pulse count.
     # --------------------------------
-    freq = 200
-    sine_arr, sine_snd = get_sine_wave(freq=freq, dur=duration)
-    plot_waveform(sine_arr, dur=duration, sample_rate=44100)
-    play_audio(sine_snd, burst=burst)
+    # freq = 200
+    # sine_arr, sine_snd = get_sine_wave(freq=freq, dur=duration)
+    # plot_waveform(sine_arr, dur=duration, sample_rate=44100)
+    # play_audio(sine_snd, burst=burst)
+
+    # --------------------------------
+    # Pulse Wave: Test same freq, different duty cycle
+    # --------------------------------
+    # pulse_width = 10 # milliseconds, only used for duty cycle calculation
+    period = 500      # milliseconds, only used for duty cycle calculation
+    pulse_count = 200 # unitless, but treat it as frequency, so Hz
+    burst = 1000      # milliseconds
+    duration = 1.0    # seconds
+
+    for pulse_width in range(0, period + 50, 50):
+        print("pulse_width:", pulse_width)
+        print("duty cycle:", pulse_width / period)
+        pulse_arr, pulse_snd = get_pulse_wave(period=period, pulse_width=pulse_width, pulse_count=pulse_count, dur=duration)
+        plot_waveform(pulse_arr, dur=duration, sample_rate=44100)
+        play_audio(pulse_snd, burst=burst)
+
+
 
     # --------------------------------
     # Test different pulse counts
