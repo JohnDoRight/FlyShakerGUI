@@ -445,9 +445,6 @@ def start_experiment(window, event, values):
     min_elapsed = (hours_elapsed % 1) * 60
     print(f"or {hours_elapsed:.1f} hour(s) and {min_elapsed:.1f} minute(s)")
 
-    # TODO: Bug: When pressing Stop Experiment while Experiment is going on, then pressing "Play Audio Sample"
-    #            will cause this error to show up: "main thread is not in main loop"
-    # Possible solution: Only have one of these below, or disable "Play Audio" until this thread/loop is done.
     set_stop_experiment_variables_and_buttons(window)
 
     pass
