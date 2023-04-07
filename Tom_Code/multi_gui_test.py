@@ -1,3 +1,9 @@
+"""
+Solution based on:
+https://stackoverflow.com/a/61178541
+
+"""
+
 import PySimpleGUI as sg
 from time import sleep
 from multiprocessing import Process
