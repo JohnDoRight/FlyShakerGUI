@@ -517,6 +517,7 @@ def event_manager(window, event, values):
         print("You pressed", event)
 
         # Stop experiment_thread (not needed, but line may be needed later for troubleshooting if it crashes).
+
         # experiment_thread.join(timeout=1)
     # TODO: Decide to keep or remove the following buttons (stop, plot):
     # elif event == STOP_BUTTON:
@@ -542,6 +543,7 @@ def main():
 
     # Create Window, call get_layout() to get layout.
     window = sg.Window('FlyShaker GUI', get_layout())
+
 
     # Initialize empty experiment_thread object, will be used with "Start Experiment" is pushed
     # experiment_thread = threading.Thread()
