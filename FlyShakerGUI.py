@@ -544,7 +544,19 @@ def start_experiment(window, event, values):
         #   Will need to compare burst value with duration, and use smaller value
         #   IF burst is bigger than actual duration, this value will be silence
 
+        # Random Burst Wave Playback
+
+        # Compare Burst with Duration,
+        #   choose smaller for wave playback.
+        # If duration smaller than burst, calculate time_to_wait like normal
+        # If duration bigger than burst, time_to_wait is zero.
+
+
+        # Not Random Burst Wave Playback
         # Calculate actual duration of wave audio (number of samples divided by sample rate)
+        # Note: You could get it from the GUI, but you would have to check if Sine/Pulse is selected
+        #        Then pull the values out, but I wanted the faster coding option.
+        #        Suggested idea: use a new function to extract based on Sine/Pulse selection
 
         # Get dimensions of numpy array
         num_rows, num_col = wave_snd.shape
