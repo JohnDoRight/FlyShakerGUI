@@ -447,6 +447,10 @@ def get_burst(values):
     return burst
 
 
+def wait_seconds(time_to_wait):
+    pass
+
+
 def start_experiment(window, event, values):
     # Runs the experiment for x hours and y minutes (in a thread)
 
@@ -472,6 +476,12 @@ def start_experiment(window, event, values):
         # Convert burst, from seconds to milliseconds
         # Get burst value depending on sine/pulse selection
         W.play_audio(wave_snd, burst=get_burst(values))
+
+        # Play Only the Wave Sample for its duration
+
+        # If entering silence, wait for the silence to end or ask user to press spacebar to end experiment early
+        # Burst = duration + wait_time, so wait_time = burst - duration
+
         if not is_running_experiment:
             print(event, "was pressed")
             print("Stopping experiment after playing current audio sample")
