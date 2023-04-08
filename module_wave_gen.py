@@ -30,6 +30,9 @@ import pygame
 from scipy import signal
 
 
+SAMPLE_RATE_DEFAULT = 44100
+
+
 def get_sine_wave(amp=16000, freq=200, dur=1.0, sample_rate=44100):
     """
     Generates 2 arrays:
@@ -304,7 +307,9 @@ def play_audio(snd, burst=1000):
 
 def play_audio2(snd, playback_time=1000):
     # playback_time, time in milliseconds
+    print("play_audio2")
     print("playing audio")
+
     fade_in=100     # rise time of sound time in milliseconds
     duration=1000   # time in milliseconds
     fade_out=50     # fall time of sound time in milliseconds
@@ -380,7 +385,9 @@ def main2():
 
     # Duration calculation test (works, divide number of samples by sample_rate, gets number of seconds of audio)
     audio_sample_rate = 44100
-    print(len(pulse_arr) / audio_sample_rate)
+    print(pulse_snd.shape)
+    print(pulse_snd)
+    # print(len(pulse_arr) / audio_sample_rate)
 
 
     pass

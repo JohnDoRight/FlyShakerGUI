@@ -55,6 +55,7 @@ https://stackoverflow.com/questions/65923933/pysimplegui-set-and-get-the-cursor-
 
 """
 
+import cv2
 import os
 import PySimpleGUI as sg
 import threading
@@ -166,6 +167,16 @@ HOURS_EXP_DEF = "0"
 HOURS_EXP_KEY = "-HOURS EXP-"
 MIN_EXP_DEF = "1"
 MIN_EXP_KEY = "-MIN EXP-"
+
+# STOP IMAGE (for when there is silence in audio)
+# Windows version to access the pulse_wave image in the "img" folder
+# If os.path.join fails, uncomment this next line, but comment the other one to make the image loading work
+# STOP_IMG = "img/stop_image.png"
+
+# OS Independent way to get the "img" folder. Should work, but untested on Mac and Linux
+# Note: If you change the "img" folder name or location, this will crash the GUI.
+STOP_IMG = os.path.join(sourceFileDir, imgFolderDir, 'stop_image.png')
+
 
 # ==== Non-GUI Variables ====
 is_running_experiment = False
@@ -448,8 +459,50 @@ def get_burst(values):
 
 
 def wait_seconds(time_to_wait):
-    print("wait_seconds")
-    print("Will wait", time_to_wait, "seconds")
+    # Will use while loop to "wait" in time_to_wait seconds,
+    #   allows user to press spacebar on keyboard to stop experiment
+    # print("wait_seconds")
+    # print("Will wait", time_to_wait, "seconds")
+    global is_running_experiment
+
+    start_time = time.monotonic()
+
+    elapsed_time = 0
+
+    # Load a dummy image (actual version should say "Press any key or spacebar to stop the silence")
+    img = cv2.imread(STOP_IMG)
+
+    while elapsed_time < time_to_wait:
+
+        # time.sleep(1)
+
+        current_time = time.monotonic()
+        elapsed_time = current_time - start_time
+
+        # For troubleshooting, check if the loop is actually waiting.
+        # print(f"Waited {elapsed_time:.1f} seconds")
+
+        # OpenCV hack to capture keyboard input using an image.
+        # Could use another library, but I wanted to use something that would be familiar.
+        cv2.imshow("img", img)
+
+        key = cv2.waitKey(1000)
+
+        if key == 32:
+            print("You pressed spacebar, stopping experiment!")
+            is_running_experiment = False
+            break
+
+        # Alternative to above, press any key on the keyboard to break the loop
+        # if key >= 0:
+        #     print("You pressed any key, breaking loop")
+        #     is_running_experiment = False
+        #     break
+
+    print(f"elapsed_time: {elapsed_time:.1f} seconds")
+    cv2.destroyAllWindows()
+    print("End of Loop")
+
     pass
 
 
@@ -457,6 +510,11 @@ def start_experiment(window, event, values):
     # Runs the experiment for x hours and y minutes (in a thread)
 
     global is_running_experiment
+
+    print("===================================================")
+    print("Experiment will only STOP after audio is played!")
+    print("Note: GUI will look like it is frozen!")
+    print("===================================================")
 
     start_time = time.monotonic()
     elapsed_time = 0
@@ -486,12 +544,35 @@ def start_experiment(window, event, values):
         #   Will need to compare burst value with duration, and use smaller value
         #   IF burst is bigger than actual duration, this value will be silence
 
-        W.play_audio2(wave_snd, playback_time=get_burst(values))
+        # Calculate actual duration of wave audio (number of samples divided by sample rate)
 
-        # Play Only the Wave Sample for its duration
+        # Get dimensions of numpy array
+        num_rows, num_col = wave_snd.shape
 
-        # If entering silence, wait for the silence to end or ask user to press spacebar to end experiment early
-        # Burst = duration + wait_time, so wait_time = burst - duration
+        # Get duration in seconds
+        wave_duration_sec = int(num_rows / W.SAMPLE_RATE_DEFAULT)
+
+        # Convert to milliseconds since W.play_audio2() needs it in milliseconds
+        wave_duration_ms = int(1000 * wave_duration_sec)
+
+        # Play the audio to the desired duration
+        W.play_audio2(wave_snd, playback_time=wave_duration_ms)
+
+        # Get silence time from burst.
+        # Math stuff: Burst = Wave_Duration + Time_to_Wait
+        #   So solve for Time_to_Wait, Time_to_Wait = Burst - Wave_Duration
+
+        # Get Burst in milliseconds
+        burst_ms = get_burst(values)
+
+        # Convert to seconds
+        burst_sec = int(burst_ms / 1000)
+
+        # Calculate time_to_wait
+        time_to_wait = burst_sec - wave_duration_sec
+
+        # Actively wait the desired time (can press spacebar to end entire experiment)
+        wait_seconds(time_to_wait)
 
         if not is_running_experiment:
             print(event, "was pressed")
