@@ -10,6 +10,17 @@ GUI using Thomas Zimmerman's wave generator code for Dr. Divya Sitaraman's droso
 [Note: Put in Tom's CCC and IBM funding section here.]
 
 TODO:
+-Put in keyboard/ wait loop in here, use OpenCV or something else?
+-Change play audio to only playing the duration of the audio, make it play audio 2
+-Create Random Burst if/else statement in Start Experiment
+  -Random burst will play actual or smaller length of wave sample, then push rest to silence loop
+-Change display images
+-Put in tooltips?
+-Update Readme
+
+
+
+
 -Disable input boxes based on Radio Sine/Pulse selection?
 Possible solutions to that:
 https://www.pysimplegui.org/en/latest/cookbook/#recipe-collapsible-sections-visible-invisible-elements
