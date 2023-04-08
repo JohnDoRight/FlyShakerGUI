@@ -49,6 +49,8 @@ import PySimpleGUI as sg
 import threading
 import time
 
+from multiprocessing import Process
+
 # Import modules
 import module_wave_gen as W
 
@@ -62,15 +64,16 @@ SINE = 'Sine'
 PULSE = 'Pulse'
 GROUP_ID = "RADIO1"
 
+# CHECKBOX KEY
+RANDOM_BURST_KEY = "-=RANDOM BURST=-"
+
 # -----------------------
 # SINE SPECIFICATIONS
 # -----------------------
 # Note: "DEF" means "Default"
 FREQ_KEY = "-FREQ-"
-# FREQ_DEF = "10"
 FREQ_DEF = "200"
 AMP_KEY = "-AMP-"
-# AMP_DEF = "1"
 AMP_DEF = "50"
 DUR_KEY = "-DURATION-"
 DUR_DEF = "1"
@@ -101,21 +104,34 @@ SINE_IMG = os.path.join(sourceFileDir, imgFolderDir, 'sine_wave.png')
 # -----------------------
 # PULSE SPECIFICATIONS
 # -----------------------
-# Note: "P" means "Pulse"
-WIDTH_KEY = "-PULSE WIDTH-"
-WIDTH_DEF = "250"
-PERIOD_KEY = "-PULSE PERIOD-"
-PERIOD_DEF = "500"
+# Note: "P" means "Pulse", "DEF" means "Default Value"
+PULSE_FREQ_KEY = "-PULSE FREQ-"
+PULSE_FREQ_DEF = "50"
 AMP_P_KEY = "-PULSE AMPLITUDE-"
-AMP_P_DEF = "50"
-COUNT_KEY = "-PULSE COUNT-"
-COUNT_DEF = "200"
+AMP_P_DEF = "10"
+DUTY_CYCLE_KEY = "-DUTY CYCLE-"
+DUTY_CYCLE_DEF = "50"
 DUR_P_KEY = "-PULSE DURATION-"
 DUR_P_DEF = "1"
 BURST_P_KEY = "-PULSE BURST PERIOD-"
 BURST_P_DEF = "1"
-PULSE_KEYS = [WIDTH_KEY, PERIOD_KEY, AMP_P_KEY, COUNT_KEY, DUR_P_KEY, BURST_P_KEY]
-PULSE_DEFAULTS = [WIDTH_DEF, PERIOD_DEF, AMP_P_DEF, COUNT_DEF, DUR_P_DEF, BURST_P_DEF]
+
+
+# ===== START OLD to be deleted ======
+WIDTH_KEY = "-PULSE WIDTH-"
+WIDTH_DEF = "250"
+PERIOD_KEY = "-PULSE PERIOD-"
+PERIOD_DEF = "500"
+COUNT_KEY = "-PULSE COUNT-"
+COUNT_DEF = "200"
+
+# PULSE_KEYS = [WIDTH_KEY, PERIOD_KEY, AMP_P_KEY, COUNT_KEY, DUR_P_KEY, BURST_P_KEY]
+# PULSE_DEFAULTS = [WIDTH_DEF, PERIOD_DEF, AMP_P_DEF, COUNT_DEF, DUR_P_DEF, BURST_P_DEF]
+
+# ===== END OLD to be deleted ======
+
+PULSE_KEYS = [PULSE_FREQ_KEY, AMP_P_KEY, DUTY_CYCLE_KEY, DUR_P_KEY, BURST_P_KEY]
+PULSE_DEFAULTS = [PULSE_FREQ_DEF, AMP_P_DEF, DUTY_CYCLE_DEF, DUR_P_DEF, BURST_P_DEF]
 
 # Windows version to access the pulse_wave image in the "img" folder
 # If os.path.join fails, uncomment this next line, but comment the other one to make the image loading work
@@ -278,14 +294,26 @@ def get_layout():
     sine_frame = sg.Frame("Sine Specifications", layout=sine_col_layout)
 
     # Pulse, Column 1
-    pulse_col1_layout = [[sg.Push(), sg.Text("Width (msec):"),
-                          sg.InputText(default_text=WIDTH_DEF, disabled=False, size=(4, 1), key=WIDTH_KEY)],
-                         [sg.Push(), sg.Text("Period (msec):"),
-                          sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
+    # pulse_col1_layout = [[sg.Push(), sg.Text("Width (msec):"),
+    #                       sg.InputText(default_text=WIDTH_DEF, disabled=False, size=(4, 1), key=WIDTH_KEY)],
+    #                      [sg.Push(), sg.Text("Period (msec):"),
+    #                       sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
+    #                      [sg.Push(), sg.Text("Amplitude (1 to 100):"),
+    #                       sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
+    #                      [sg.Push(), sg.Text("Count (1 to 32,000):"),
+    #                       sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
+    #                      [sg.Push(), sg.Text("Duration (seconds):"),
+    #                       sg.InputText(default_text=DUR_P_DEF, size=(4, 1), key=DUR_P_KEY)],
+    #                      [sg.Push(), sg.Text("Burst Period (seconds):"),
+    #                       sg.InputText(default_text=BURST_P_DEF, size=(4, 1), key=BURST_P_KEY)]
+    #                      ]
+
+    pulse_col1_layout = [[sg.Push(), sg.Text("Frequency (10 to 200 Hz):"),
+                          sg.InputText(default_text=PULSE_FREQ_DEF, disabled=False, size=(4, 1), key=PULSE_FREQ_KEY)],
                          [sg.Push(), sg.Text("Amplitude (1 to 100):"),
                           sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
-                         [sg.Push(), sg.Text("Count (1 to 32,000):"),
-                          sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
+                         [sg.Push(), sg.Text("Duty Cycle (1% to 99%):"),
+                          sg.InputText(default_text=DUTY_CYCLE_DEF, size=(4, 1), key=DUTY_CYCLE_KEY)],
                          [sg.Push(), sg.Text("Duration (seconds):"),
                           sg.InputText(default_text=DUR_P_DEF, size=(4, 1), key=DUR_P_KEY)],
                          [sg.Push(), sg.Text("Burst Period (seconds):"),
@@ -313,7 +341,8 @@ def get_layout():
     # Setup Layout
     layout = [[sg.Text('Choose a Wave Type (Sine or Pulse):'),
                sg.Radio(SINE, group_id=GROUP_ID, key=SINE, default=True),
-               sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
+               sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE),
+               sg.Checkbox("Random Burst", default=False, key=RANDOM_BURST_KEY)],
               [sine_frame],
               [pulse_frame],
               [sg.Button(PLAY_AUDIO_BUTTON)],
@@ -363,10 +392,15 @@ def get_wave(values):
         for key in PULSE_KEYS:
             print(key, ":", values[key])
 
-        width_p = int(values[WIDTH_KEY])
-        period_p = int(values[PERIOD_KEY])
+        # width_p = int(values[WIDTH_KEY])
+        # period_p = int(values[PERIOD_KEY])
+
+        freq_p = int(values[PULSE_FREQ_KEY])
         amp_p_user = int(values[AMP_P_KEY])
-        count_p = int(values[COUNT_KEY])
+
+        # Convert from int between 1 and 99 to float between 0.01 to 0.99
+        duty_cycle_p = int(values[DUTY_CYCLE_KEY]) / 100
+        # count_p = int(values[COUNT_KEY])
         dur_p = int(values[DUR_P_KEY])
         burst_p = int(values[BURST_P_KEY])
 
@@ -375,9 +409,10 @@ def get_wave(values):
                                to_low=AMP_ACTUAL_MIN, to_high=AMP_ACTUAL_MAX)
 
         # Get Pulse Wave array and sound array
-        square_arr, square_snd = W.get_pulse_wave(amp=amp_p, period=period_p, pulse_width=width_p, pulse_count=count_p, dur=dur_p)
-        wave_arr = square_arr
-        wave_snd = square_snd
+        # square_arr, square_snd = W.get_pulse_wave(amp=amp_p, period=period_p, pulse_width=width_p, pulse_count=count_p, dur=dur_p)
+        pulse_arr, pulse_snd = W.get_pulse_wave2(amp=amp_p, freq=freq_p, duty_cycle=duty_cycle_p, dur=dur_p)
+        wave_arr = pulse_arr
+        wave_snd = pulse_snd
 
     # return wave_arr and wave_snd
     return wave_arr, wave_snd
@@ -485,6 +520,10 @@ def event_manager(window, event, values):
     # If Sine is selected, values[SINE] will be true.
     is_sine_wave = values[SINE]
 
+    p = Process()
+
+    print(RANDOM_BURST_KEY, ":", values[RANDOM_BURST_KEY])
+
     if event == PLAY_AUDIO_BUTTON:
         print("You pressed", event)
         # Where Tom's Code will be accessed.
@@ -507,14 +546,22 @@ def event_manager(window, event, values):
         # start_experiment(values)
         print(f"Will run experiment for {values[HOURS_EXP_KEY]} hour(s) and {values[MIN_EXP_KEY]} minute(s)")
 
+        # Thread Version
         experiment_thread = threading.Thread(target=start_experiment, args=(window, event, values), daemon=True)
         experiment_thread.start()
         # time.sleep(5)
+
+        # Process Version
+        # p = Process(target=start_experiment, args=(window, event, values,))
+        # p.start()
 
     elif event == STOP_EXPERIMENT:
         # set_stop_experiment_variables_and_buttons(window)
         is_running_experiment = False
         print("You pressed", event)
+
+        # Process Version
+        # p.terminate()
 
         # Stop experiment_thread (not needed, but line may be needed later for troubleshooting if it crashes).
 

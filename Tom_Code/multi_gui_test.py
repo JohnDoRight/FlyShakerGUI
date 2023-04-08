@@ -6,13 +6,15 @@ https://stackoverflow.com/a/61178541
 
 import PySimpleGUI as sg
 from time import sleep
+from multiprocessing.pool import ThreadPool as Pool
 from multiprocessing import Process
+
 
 
 def work(a):
 
     for i in range(10):
-        print("Hello", i, a)
+        print("Hello", i)
         sleep(1)
 
 
@@ -38,6 +40,7 @@ def main():
 
             # Non-Process
             # work()
+            temp = {"window": window}
 
             #Process
             test_input = 123
