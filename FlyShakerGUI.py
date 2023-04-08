@@ -448,6 +448,8 @@ def get_burst(values):
 
 
 def wait_seconds(time_to_wait):
+    print("wait_seconds")
+    print("Will wait", time_to_wait, "seconds")
     pass
 
 
@@ -475,7 +477,16 @@ def start_experiment(window, event, values):
         # for i in range(5):
         # Convert burst, from seconds to milliseconds
         # Get burst value depending on sine/pulse selection
-        W.play_audio(wave_snd, burst=get_burst(values))
+        # W.play_audio(wave_snd, burst=get_burst(values))
+
+        # Get playback_time
+        # If not doing random burst, will be the actual duration of the audio.
+        #   Then enter wait_seconds() for silence loop
+        # If doing random burst, playback_time will not exceed actual duration length.
+        #   Will need to compare burst value with duration, and use smaller value
+        #   IF burst is bigger than actual duration, this value will be silence
+
+        W.play_audio2(wave_snd, playback_time=get_burst(values))
 
         # Play Only the Wave Sample for its duration
 
