@@ -302,6 +302,32 @@ def play_audio(snd, burst=1000):
     print("Done playing audio")
 
 
+def play_audio2(snd, playback_time=1000):
+    # playback_time, time in milliseconds
+    print("playing audio")
+    fade_in=100     # rise time of sound time in milliseconds
+    duration=1000   # time in milliseconds
+    fade_out=50     # fall time of sound time in milliseconds
+
+    # TODO: Decide where to initialize pygame.mixer (as global?)
+    #       Notes: only needs to be initialized once, can put in main.
+    # TODO: Figure out where to quit the mixer.
+    # TODO: Where to put the pygame init constants, at the beginning?
+    # Initialize pygame.mixer.init()
+    # Refer to pygame docs for more info about each variable:
+    # https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.init
+    sampling_frequency = 44100
+    size = -16
+    channels = 1
+    buffer = 512
+    pygame.mixer.init(sampling_frequency, size, channels, buffer)
+    sound = pygame.sndarray.make_sound(snd)
+    sound.play()
+    pygame.time.delay(playback_time)
+
+    print("Done playing audio")
+
+
 def plot_waveform(wave_arr, plot_samples=1000, dur=1.0, sample_rate=44100):
 
     # Only plot the first 1000 values
@@ -339,6 +365,20 @@ def map_function(value, from_low, from_high, to_low, to_high):
     print("map_function")
     result = (value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low
     return int(result)
+
+
+def main2():
+
+    # Test play_audio2(), will be used in combination of silence waiting
+    pulse_arr, pulse_snd = get_pulse_wave2()
+
+    # Will play audio only for the playback_time in milliseconds,
+    # so it can either cut off the audio early or add silence itself
+    # But the goal is to have it only audio wave audio, the silence will be handled by another function.
+    play_audio2(pulse_snd, playback_time=1000)
+    play_audio2(pulse_snd, playback_time=1000)
+
+    pass
 
 
 def main():
@@ -411,13 +451,13 @@ def main():
     # --------------------------------
     # Pulse Wave 3: Test get_pulse_wave3()
     # --------------------------------
-    period = 50      # in msec
-    duty_cycle = 0.5 # unitless, value from 0 to 1
-    duration = 1.0   # in sec
-    burst = 1000     # in msec
-    pulse_arr, pulse_snd = get_pulse_wave3(amp=16000, period=period, duty_cycle=duty_cycle, dur=duration, sample_rate=32000)
-    plot_waveform(pulse_arr, dur=duration, sample_rate=32000)
-    play_audio(pulse_snd, burst=burst)
+    # period = 50      # in msec
+    # duty_cycle = 0.5 # unitless, value from 0 to 1
+    # duration = 1.0   # in sec
+    # burst = 1000     # in msec
+    # pulse_arr, pulse_snd = get_pulse_wave3(amp=16000, period=period, duty_cycle=duty_cycle, dur=duration, sample_rate=32000)
+    # plot_waveform(pulse_arr, dur=duration, sample_rate=32000)
+    # play_audio(pulse_snd, burst=burst)
 
     # for period in range(1, 50, 1):
     #     print("period:", period, " msec")
@@ -449,4 +489,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    main2()
