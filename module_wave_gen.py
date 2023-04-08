@@ -370,13 +370,18 @@ def map_function(value, from_low, from_high, to_low, to_high):
 def main2():
 
     # Test play_audio2(), will be used in combination of silence waiting
-    pulse_arr, pulse_snd = get_pulse_wave2()
+    pulse_arr, pulse_snd = get_pulse_wave2(dur=2.0)
 
     # Will play audio only for the playback_time in milliseconds,
     # so it can either cut off the audio early or add silence itself
     # But the goal is to have it only audio wave audio, the silence will be handled by another function.
-    play_audio2(pulse_snd, playback_time=1000)
-    play_audio2(pulse_snd, playback_time=1000)
+    # play_audio2(pulse_snd, playback_time=1000)
+    # play_audio2(pulse_snd, playback_time=1000)
+
+    # Duration calculation test (works, divide number of samples by sample_rate, gets number of seconds of audio)
+    audio_sample_rate = 44100
+    print(len(pulse_arr) / audio_sample_rate)
+
 
     pass
 
