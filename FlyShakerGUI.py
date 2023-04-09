@@ -11,7 +11,6 @@ GUI using Thomas Zimmerman's wave generator code for Dr. Divya Sitaraman's droso
 
 TODO:
 -Put in tooltips?
--Update Readme
 
 -Disable input boxes based on Radio Sine/Pulse selection?
 Possible solutions to that:
@@ -29,6 +28,8 @@ Changelog:
 4-8-2023: Made Pulse Specs match Sine Specs, added in Duty Cycle. Added in Random Burst checkbox and code.
           Added in updated Pulse Spec image to match Sine more.
           Updated module_wave_gen with test code and more functions for flexibility.
+          Commented out threading and processing due to potential bugs.
+          To stop the GUI, you will have to use Task Manager to End it, or if using an IDE, stopping it through that.
 3-10-2023: Fixed main thread bug, just put in flag for Stop Experiment Button.
 3-10-2023: Version 1 complete. Sine/Pulse wave creation works and experiment works.
 2-11-2023: Added in sine/pulse specifications and radio.
@@ -715,12 +716,17 @@ def event_manager(window, event, values):
         # start_experiment(values)
         print(f"Will run experiment for {values[HOURS_EXP_KEY]} hour(s) and {values[MIN_EXP_KEY]} minute(s)")
 
+        # Non-Thread, Non-Process Version
+        start_experiment(window, event, values)
+
         # Thread Version
-        experiment_thread = threading.Thread(target=start_experiment, args=(window, event, values), daemon=True)
-        experiment_thread.start()
+        # experiment_thread = threading.Thread(target=start_experiment, args=(window, event, values), daemon=True)
+        # experiment_thread.start()
         # time.sleep(5)
 
-        # Process Version
+        # Process Version (Should allow user to actually Stop Experiment whenever they want)
+        # Current bug: GUI elements cannot be pickled.
+        #   Two possible solutions: (1) put relevant values into a dictionary or (2) use pathos multiprocessing
         # p = Process(target=start_experiment, args=(window, event, values,))
         # p.start()
 
