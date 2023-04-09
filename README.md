@@ -1,5 +1,5 @@
 # FlyShakerGUI
-![GUI Sample Image](other/sample_gui_image_v1a.PNG)
+![GUI Sample Image](other/sample_gui_image_v2.PNG)
 
 FlyShaker GUI Code for control of the audio wave generation device developed
 by Thomas Zimmerman (IBM, CCC) for use in Dr. Divya Sitaraman's lab at CSU East Bay.
@@ -18,6 +18,8 @@ If you want explanations and reasoning, read the rest of the sections.
 - Possible Future Updates
 
 ## Changelog
+4-8-2023: Made version 2 of GUI with Random Burst mode selection,
+          made Pulse Specs match Sine Specs, but with Duty Cycle 
 3-18-2023: Added more to Readme. GUI Version 1 complete, ready for testing. 
 
 ## Quickstart (no explanation)
