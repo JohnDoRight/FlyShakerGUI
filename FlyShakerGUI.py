@@ -34,6 +34,9 @@ https://stackoverflow.com/questions/736043/checking-if-a-string-can-be-converted
 https://www.geeksforgeeks.org/python-check-for-float-string/
 
 Changelog:
+4-8-2023: Made Pulse Specs match Sine Specs, added in Duty Cycle. Added in Random Burst checkbox and code.
+          Added in updated Pulse Spec image to match Sine more.
+          Updated module_wave_gen with test code and more functions for flexibility.
 3-10-2023: Fixed main thread bug, just put in flag for Stop Experiment Button.
 3-10-2023: Version 1 complete. Sine/Pulse wave creation works and experiment works.
 2-11-2023: Added in sine/pulse specifications and radio.
@@ -152,7 +155,7 @@ PULSE_DEFAULTS = [PULSE_FREQ_DEF, AMP_P_DEF, DUTY_CYCLE_DEF, DUR_P_DEF, BURST_P_
 
 # OS Independent way to get the "img" folder. Should work, but untested on Mac and Linux
 # Note: If you change the "img" folder name or location, this will crash the GUI.
-PULSE_IMG = os.path.join(sourceFileDir, imgFolderDir, 'pulse_wave.png')
+PULSE_IMG = os.path.join(sourceFileDir, imgFolderDir, 'pulse_wave2.png')
 
 # Button Text
 PLAY_AUDIO_BUTTON = "Play Audio Sample"
