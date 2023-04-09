@@ -7,6 +7,10 @@ by Thomas Zimmerman (IBM, CCC) for use in Dr. Divya Sitaraman's lab at CSU East 
 *Note*: Go to **Quickstart** if you want to start using the GUI without any explanations.
 If you want explanations and reasoning, read the rest of the sections.
 
+*Note2*: Version 2 of GUI has to be manually stopped through Windows Task Manager,
+waiting for silence to show up and pressing Spacebar, or if using an IDE and
+stopping it through that way.
+
 ## Outline
 - Changelog
 - Quickstart
