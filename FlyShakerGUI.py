@@ -58,6 +58,7 @@ https://stackoverflow.com/questions/65923933/pysimplegui-set-and-get-the-cursor-
 import cv2
 import os
 import PySimpleGUI as sg
+import random
 import threading
 import time
 
@@ -458,12 +459,37 @@ def get_burst(values):
     return burst
 
 
+def get_burst2(values):
+    # Get is_sine_wave
+    is_sine_wave = values[SINE]
+
+    # Initialize burst
+    burst = 0
+
+    # If sine, get sine burst, else get pulse burst (in seconds)
+    if is_sine_wave:
+        # For Sine
+        burst = int(values[BURST_SINE_KEY])
+    else:
+        # For Pulse
+        burst = int(values[BURST_P_KEY])
+
+    return burst
+
+
 def wait_seconds(time_to_wait):
     # Will use while loop to "wait" in time_to_wait seconds,
     #   allows user to press spacebar on keyboard to stop experiment
     # print("wait_seconds")
-    # print("Will wait", time_to_wait, "seconds")
+
     global is_running_experiment
+
+    if time_to_wait <= 0:
+        return
+    print("======================================")
+    print("Press Spacebar to Stop Experiment!")
+    print("Will wait", time_to_wait, "seconds")
+    print("======================================")
 
     start_time = time.monotonic()
 
@@ -499,10 +525,9 @@ def wait_seconds(time_to_wait):
         #     is_running_experiment = False
         #     break
 
-    print(f"elapsed_time: {elapsed_time:.1f} seconds")
+    print(f"Silence elapsed_time: {elapsed_time:.1f} seconds")
     cv2.destroyAllWindows()
     print("End of Loop")
-
     pass
 
 
@@ -515,6 +540,10 @@ def start_experiment(window, event, values):
     print("Experiment will only STOP after audio is played!")
     print("Note: GUI will look like it is frozen!")
     print("===================================================")
+
+    # Get if Random Burst is selected or not
+    is_random_burst_selected = values[RANDOM_BURST_KEY]
+
 
     start_time = time.monotonic()
     elapsed_time = 0
@@ -564,26 +593,46 @@ def start_experiment(window, event, values):
         # Get duration in seconds
         wave_duration_sec = int(num_rows / W.SAMPLE_RATE_DEFAULT)
 
-        # Convert to milliseconds since W.play_audio2() needs it in milliseconds
-        wave_duration_ms = int(1000 * wave_duration_sec)
-
-        # Play the audio to the desired duration
-        W.play_audio2(wave_snd, playback_time=wave_duration_ms)
-
         # Get silence time from burst.
         # Math stuff: Burst = Wave_Duration + Time_to_Wait
         #   So solve for Time_to_Wait, Time_to_Wait = Burst - Wave_Duration
 
-        # Get Burst in milliseconds
-        burst_ms = get_burst(values)
-
         # Convert to seconds
-        burst_sec = int(burst_ms / 1000)
+        burst_sec = get_burst2(values)
+
+        # If random burst selected, change burst_sec to a random int between 1 and burst_max (should always be one)
+        if is_random_burst_selected == True:
+            # For troubleshooting:
+            # print("is_random_burst_selected:", is_random_burst_selected)
+            # Set burst_max as burst_sec
+            burst_max = burst_sec
+            print("Random Burst is Selected! Choosing random value between 1 and", burst_max)
+            # Choose random int from 1 to burst_sect
+            burst_sec = random.randint(1, burst_max)
+            print("Random burst_sec:", burst_sec)
+
+        # Compare Burst with Duration,
+        #   choose smaller for wave playback.
+        # If duration smaller than burst, calculate time_to_wait like normal
+        # If duration bigger than burst, time_to_wait is zero.
+        if burst_sec < wave_duration_sec:
+            wave_duration_ms = int(1000 * burst_sec)
+        else:
+            wave_duration_ms = int(1000 * wave_duration_sec)
 
         # Calculate time_to_wait
         time_to_wait = burst_sec - wave_duration_sec
 
+        # Convert to milliseconds since W.play_audio2() needs it in milliseconds
+        print("Will play audio for:", wave_duration_ms / 1000, "seconds")
+
+        # Play Audio and Wait Section
+        # Play the audio to the desired duration
+        W.play_audio2(wave_snd, playback_time=wave_duration_ms)
+
         # Actively wait the desired time (can press spacebar to end entire experiment)
+        # Note: if time_to_wait is negative because of random burst,
+        # function will run so fast that almost no time will go by.
         wait_seconds(time_to_wait)
 
         if not is_running_experiment:
@@ -593,7 +642,7 @@ def start_experiment(window, event, values):
 
         current_time = time.monotonic()
         elapsed_time = current_time - start_time
-        print("elapsed_time:", elapsed_time, "second(s)")
+        print("Experiment elapsed_time:", elapsed_time, "second(s)")
 
     print(f"Experiment has run for {elapsed_time:.2f} seconds")
     # Convert seconds to hours

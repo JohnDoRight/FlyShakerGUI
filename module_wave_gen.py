@@ -29,7 +29,8 @@ import pygame
 
 from scipy import signal
 
-
+# Used for calculating duration of wave audio
+# TODO: Change code in this module to use this constant
 SAMPLE_RATE_DEFAULT = 44100
 
 
@@ -329,6 +330,10 @@ def play_audio2(snd, playback_time=1000):
     sound = pygame.sndarray.make_sound(snd)
     sound.play()
     pygame.time.delay(playback_time)
+
+    # Fade Out seems to lowers chance for bug where short wave samples play over each other,
+    # causing an increase in volume (probably amplitude since it is constructive interference)
+    sound.fadeout(fade_out)
 
     print("Done playing audio")
 
