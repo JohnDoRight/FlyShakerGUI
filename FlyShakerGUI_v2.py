@@ -10,6 +10,9 @@ GUI using Thomas Zimmerman's wave generator code for Dr. Divya Sitaraman's droso
 [Note: Put in Tom's CCC and IBM funding section here.]
 
 TODO:
+-Put in tooltips?
+-Update Readme
+
 -Disable input boxes based on Radio Sine/Pulse selection?
 Possible solutions to that:
 https://www.pysimplegui.org/en/latest/cookbook/#recipe-collapsible-sections-visible-invisible-elements
@@ -23,6 +26,9 @@ https://stackoverflow.com/questions/736043/checking-if-a-string-can-be-converted
 https://www.geeksforgeeks.org/python-check-for-float-string/
 
 Changelog:
+4-8-2023: Made Pulse Specs match Sine Specs, added in Duty Cycle. Added in Random Burst checkbox and code.
+          Added in updated Pulse Spec image to match Sine more.
+          Updated module_wave_gen with test code and more functions for flexibility.
 3-10-2023: Fixed main thread bug, just put in flag for Stop Experiment Button.
 3-10-2023: Version 1 complete. Sine/Pulse wave creation works and experiment works.
 2-11-2023: Added in sine/pulse specifications and radio.
@@ -44,10 +50,14 @@ https://stackoverflow.com/questions/65923933/pysimplegui-set-and-get-the-cursor-
 
 """
 
+import cv2
 import os
 import PySimpleGUI as sg
+import random
 import threading
 import time
+
+from multiprocessing import Process
 
 # Import modules
 import module_wave_gen as W
@@ -62,15 +72,16 @@ SINE = 'Sine'
 PULSE = 'Pulse'
 GROUP_ID = "RADIO1"
 
+# CHECKBOX KEY
+RANDOM_BURST_KEY = "-=RANDOM BURST=-"
+
 # -----------------------
 # SINE SPECIFICATIONS
 # -----------------------
 # Note: "DEF" means "Default"
 FREQ_KEY = "-FREQ-"
-# FREQ_DEF = "10"
 FREQ_DEF = "200"
 AMP_KEY = "-AMP-"
-# AMP_DEF = "1"
 AMP_DEF = "50"
 DUR_KEY = "-DURATION-"
 DUR_DEF = "1"
@@ -101,21 +112,34 @@ SINE_IMG = os.path.join(sourceFileDir, imgFolderDir, 'sine_wave.png')
 # -----------------------
 # PULSE SPECIFICATIONS
 # -----------------------
-# Note: "P" means "Pulse"
-WIDTH_KEY = "-PULSE WIDTH-"
-WIDTH_DEF = "250"
-PERIOD_KEY = "-PULSE PERIOD-"
-PERIOD_DEF = "500"
+# Note: "P" means "Pulse", "DEF" means "Default Value"
+PULSE_FREQ_KEY = "-PULSE FREQ-"
+PULSE_FREQ_DEF = "50"
 AMP_P_KEY = "-PULSE AMPLITUDE-"
-AMP_P_DEF = "50"
-COUNT_KEY = "-PULSE COUNT-"
-COUNT_DEF = "200"
+AMP_P_DEF = "10"
+DUTY_CYCLE_KEY = "-DUTY CYCLE-"
+DUTY_CYCLE_DEF = "50"
 DUR_P_KEY = "-PULSE DURATION-"
 DUR_P_DEF = "1"
 BURST_P_KEY = "-PULSE BURST PERIOD-"
 BURST_P_DEF = "1"
-PULSE_KEYS = [WIDTH_KEY, PERIOD_KEY, AMP_P_KEY, COUNT_KEY, DUR_P_KEY, BURST_P_KEY]
-PULSE_DEFAULTS = [WIDTH_DEF, PERIOD_DEF, AMP_P_DEF, COUNT_DEF, DUR_P_DEF, BURST_P_DEF]
+
+
+# ===== START OLD to be deleted ======
+WIDTH_KEY = "-PULSE WIDTH-"
+WIDTH_DEF = "250"
+PERIOD_KEY = "-PULSE PERIOD-"
+PERIOD_DEF = "500"
+COUNT_KEY = "-PULSE COUNT-"
+COUNT_DEF = "200"
+
+# PULSE_KEYS = [WIDTH_KEY, PERIOD_KEY, AMP_P_KEY, COUNT_KEY, DUR_P_KEY, BURST_P_KEY]
+# PULSE_DEFAULTS = [WIDTH_DEF, PERIOD_DEF, AMP_P_DEF, COUNT_DEF, DUR_P_DEF, BURST_P_DEF]
+
+# ===== END OLD to be deleted ======
+
+PULSE_KEYS = [PULSE_FREQ_KEY, AMP_P_KEY, DUTY_CYCLE_KEY, DUR_P_KEY, BURST_P_KEY]
+PULSE_DEFAULTS = [PULSE_FREQ_DEF, AMP_P_DEF, DUTY_CYCLE_DEF, DUR_P_DEF, BURST_P_DEF]
 
 # Windows version to access the pulse_wave image in the "img" folder
 # If os.path.join fails, uncomment this next line, but comment the other one to make the image loading work
@@ -123,7 +147,7 @@ PULSE_DEFAULTS = [WIDTH_DEF, PERIOD_DEF, AMP_P_DEF, COUNT_DEF, DUR_P_DEF, BURST_
 
 # OS Independent way to get the "img" folder. Should work, but untested on Mac and Linux
 # Note: If you change the "img" folder name or location, this will crash the GUI.
-PULSE_IMG = os.path.join(sourceFileDir, imgFolderDir, 'pulse_wave.png')
+PULSE_IMG = os.path.join(sourceFileDir, imgFolderDir, 'pulse_wave2.png')
 
 # Button Text
 PLAY_AUDIO_BUTTON = "Play Audio Sample"
@@ -139,6 +163,16 @@ HOURS_EXP_DEF = "0"
 HOURS_EXP_KEY = "-HOURS EXP-"
 MIN_EXP_DEF = "1"
 MIN_EXP_KEY = "-MIN EXP-"
+
+# STOP IMAGE (for when there is silence in audio)
+# Windows version to access the pulse_wave image in the "img" folder
+# If os.path.join fails, uncomment this next line, but comment the other one to make the image loading work
+# STOP_IMG = "img/stop_image.png"
+
+# OS Independent way to get the "img" folder. Should work, but untested on Mac and Linux
+# Note: If you change the "img" folder name or location, this will crash the GUI.
+STOP_IMG = os.path.join(sourceFileDir, imgFolderDir, 'stop_image.png')
+
 
 # ==== Non-GUI Variables ====
 is_running_experiment = False
@@ -278,14 +312,26 @@ def get_layout():
     sine_frame = sg.Frame("Sine Specifications", layout=sine_col_layout)
 
     # Pulse, Column 1
-    pulse_col1_layout = [[sg.Push(), sg.Text("Width (msec):"),
-                          sg.InputText(default_text=WIDTH_DEF, disabled=False, size=(4, 1), key=WIDTH_KEY)],
-                         [sg.Push(), sg.Text("Period (msec):"),
-                          sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
+    # pulse_col1_layout = [[sg.Push(), sg.Text("Width (msec):"),
+    #                       sg.InputText(default_text=WIDTH_DEF, disabled=False, size=(4, 1), key=WIDTH_KEY)],
+    #                      [sg.Push(), sg.Text("Period (msec):"),
+    #                       sg.InputText(default_text=PERIOD_DEF, size=(4, 1), key=PERIOD_KEY)],
+    #                      [sg.Push(), sg.Text("Amplitude (1 to 100):"),
+    #                       sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
+    #                      [sg.Push(), sg.Text("Count (1 to 32,000):"),
+    #                       sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
+    #                      [sg.Push(), sg.Text("Duration (seconds):"),
+    #                       sg.InputText(default_text=DUR_P_DEF, size=(4, 1), key=DUR_P_KEY)],
+    #                      [sg.Push(), sg.Text("Burst Period (seconds):"),
+    #                       sg.InputText(default_text=BURST_P_DEF, size=(4, 1), key=BURST_P_KEY)]
+    #                      ]
+
+    pulse_col1_layout = [[sg.Push(), sg.Text("Frequency (10 to 200 Hz):"),
+                          sg.InputText(default_text=PULSE_FREQ_DEF, disabled=False, size=(4, 1), key=PULSE_FREQ_KEY)],
                          [sg.Push(), sg.Text("Amplitude (1 to 100):"),
                           sg.InputText(default_text=AMP_P_DEF, size=(4, 1), key=AMP_P_KEY)],
-                         [sg.Push(), sg.Text("Count (1 to 32,000):"),
-                          sg.InputText(default_text=COUNT_DEF, size=(4, 1), key=COUNT_KEY)],
+                         [sg.Push(), sg.Text("Duty Cycle (1% to 99%):"),
+                          sg.InputText(default_text=DUTY_CYCLE_DEF, size=(4, 1), key=DUTY_CYCLE_KEY)],
                          [sg.Push(), sg.Text("Duration (seconds):"),
                           sg.InputText(default_text=DUR_P_DEF, size=(4, 1), key=DUR_P_KEY)],
                          [sg.Push(), sg.Text("Burst Period (seconds):"),
@@ -313,7 +359,8 @@ def get_layout():
     # Setup Layout
     layout = [[sg.Text('Choose a Wave Type (Sine or Pulse):'),
                sg.Radio(SINE, group_id=GROUP_ID, key=SINE, default=True),
-               sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE)],
+               sg.Radio(PULSE, group_id=GROUP_ID, key=PULSE),
+               sg.Checkbox("Random Burst", default=False, key=RANDOM_BURST_KEY)],
               [sine_frame],
               [pulse_frame],
               [sg.Button(PLAY_AUDIO_BUTTON)],
@@ -363,10 +410,15 @@ def get_wave(values):
         for key in PULSE_KEYS:
             print(key, ":", values[key])
 
-        width_p = int(values[WIDTH_KEY])
-        period_p = int(values[PERIOD_KEY])
+        # width_p = int(values[WIDTH_KEY])
+        # period_p = int(values[PERIOD_KEY])
+
+        freq_p = int(values[PULSE_FREQ_KEY])
         amp_p_user = int(values[AMP_P_KEY])
-        count_p = int(values[COUNT_KEY])
+
+        # Convert from int between 1 and 99 to float between 0.01 to 0.99
+        duty_cycle_p = int(values[DUTY_CYCLE_KEY]) / 100
+        # count_p = int(values[COUNT_KEY])
         dur_p = int(values[DUR_P_KEY])
         burst_p = int(values[BURST_P_KEY])
 
@@ -375,9 +427,10 @@ def get_wave(values):
                                to_low=AMP_ACTUAL_MIN, to_high=AMP_ACTUAL_MAX)
 
         # Get Pulse Wave array and sound array
-        square_arr, square_snd = W.get_pulse_wave(amp=amp_p, period=period_p, pulse_width=width_p, pulse_count=count_p, dur=dur_p)
-        wave_arr = square_arr
-        wave_snd = square_snd
+        # square_arr, square_snd = W.get_pulse_wave(amp=amp_p, period=period_p, pulse_width=width_p, pulse_count=count_p, dur=dur_p)
+        pulse_arr, pulse_snd = W.get_pulse_wave2(amp=amp_p, freq=freq_p, duty_cycle=duty_cycle_p, dur=dur_p)
+        wave_arr = pulse_arr
+        wave_snd = pulse_snd
 
     # return wave_arr and wave_snd
     return wave_arr, wave_snd
@@ -401,10 +454,91 @@ def get_burst(values):
     return burst
 
 
+def get_burst2(values):
+    # Get is_sine_wave
+    is_sine_wave = values[SINE]
+
+    # Initialize burst
+    burst = 0
+
+    # If sine, get sine burst, else get pulse burst (in seconds)
+    if is_sine_wave:
+        # For Sine
+        burst = int(values[BURST_SINE_KEY])
+    else:
+        # For Pulse
+        burst = int(values[BURST_P_KEY])
+
+    return burst
+
+
+def wait_seconds(time_to_wait):
+    # Will use while loop to "wait" in time_to_wait seconds,
+    #   allows user to press spacebar on keyboard to stop experiment
+    # print("wait_seconds")
+
+    global is_running_experiment
+
+    if time_to_wait <= 0:
+        return
+    print("======================================")
+    print("Press Spacebar to Stop Experiment!")
+    print("Will wait", time_to_wait, "seconds")
+    print("======================================")
+
+    start_time = time.monotonic()
+
+    elapsed_time = 0
+
+    # Load a dummy image (actual version should say "Press any key or spacebar to stop the silence")
+    img = cv2.imread(STOP_IMG)
+
+    while elapsed_time < time_to_wait:
+
+        # time.sleep(1)
+
+        current_time = time.monotonic()
+        elapsed_time = current_time - start_time
+
+        # For troubleshooting, check if the loop is actually waiting.
+        # print(f"Waited {elapsed_time:.1f} seconds")
+
+        # OpenCV hack to capture keyboard input using an image.
+        # Could use another library, but I wanted to use something that would be familiar.
+        cv2.imshow("img", img)
+
+        key = cv2.waitKey(1000)
+
+        if key == 32:
+            print("You pressed spacebar, stopping experiment!")
+            is_running_experiment = False
+            break
+
+        # Alternative to above, press any key on the keyboard to break the loop
+        # if key >= 0:
+        #     print("You pressed any key, breaking loop")
+        #     is_running_experiment = False
+        #     break
+
+    print(f"Silence elapsed_time: {elapsed_time:.1f} seconds")
+    cv2.destroyAllWindows()
+    print("End of Loop")
+    pass
+
+
 def start_experiment(window, event, values):
     # Runs the experiment for x hours and y minutes (in a thread)
 
     global is_running_experiment
+
+    print("===================================================")
+    print("Experiment will only STOP after audio is played!")
+    print("Note: GUI will look like it is frozen!")
+    print("===================================================")
+
+    # Get if Random Burst is selected or not
+    is_random_burst_selected = values[RANDOM_BURST_KEY]
+
 
     start_time = time.monotonic()
     elapsed_time = 0
@@ -425,7 +559,77 @@ def start_experiment(window, event, values):
         # for i in range(5):
         # Convert burst, from seconds to milliseconds
         # Get burst value depending on sine/pulse selection
-        W.play_audio(wave_snd, burst=get_burst(values))
+        # W.play_audio(wave_snd, burst=get_burst(values))
+
+        # Get playback_time
+        # If not doing random burst, will be the actual duration of the audio.
+        #   Then enter wait_seconds() for silence loop
+        # If doing random burst, playback_time will not exceed actual duration length.
+        #   Will need to compare burst value with duration, and use smaller value
+        #   IF burst is bigger than actual duration, this value will be silence
+
+        # Random Burst Wave Playback
+
+        # Compare Burst with Duration,
+        #   choose smaller for wave playback.
+        # If duration smaller than burst, calculate time_to_wait like normal
+        # If duration bigger than burst, time_to_wait is zero.
+
+
+        # Not Random Burst Wave Playback
+        # Calculate actual duration of wave audio (number of samples divided by sample rate)
+        # Note: You could get it from the GUI, but you would have to check if Sine/Pulse is selected
+        #        Then pull the values out, but I wanted the faster coding option.
+        #        Suggested idea: use a new function to extract based on Sine/Pulse selection
+
+        # Get dimensions of numpy array
+        num_rows, num_col = wave_snd.shape
+
+        # Get duration in seconds
+        wave_duration_sec = int(num_rows / W.SAMPLE_RATE_DEFAULT)
+
+        # Get silence time from burst.
+        # Math stuff: Burst = Wave_Duration + Time_to_Wait
+        #   So solve for Time_to_Wait, Time_to_Wait = Burst - Wave_Duration
+
+        # Convert to seconds
+        burst_sec = get_burst2(values)
+
+        # If random burst selected, change burst_sec to a random int between 1 and burst_max (should always be one)
+        if is_random_burst_selected == True:
+            # For troubleshooting:
+            # print("is_random_burst_selected:", is_random_burst_selected)
+            # Set burst_max as burst_sec
+            burst_max = burst_sec
+            print("Random Burst is Selected! Choosing random value between 1 and", burst_max)
+            # Choose random int from 1 to burst_sect
+            burst_sec = random.randint(1, burst_max)
+            print("Random burst_sec:", burst_sec)
+
+        # Compare Burst with Duration,
+        #   choose smaller for wave playback.
+        # If duration smaller than burst, calculate time_to_wait like normal
+        # If duration bigger than burst, time_to_wait is zero.
+        if burst_sec < wave_duration_sec:
+            wave_duration_ms = int(1000 * burst_sec)
+        else:
+            wave_duration_ms = int(1000 * wave_duration_sec)
+
+        # Calculate time_to_wait
+        time_to_wait = burst_sec - wave_duration_sec
+
+        # Convert to milliseconds since W.play_audio2() needs it in milliseconds
+        print("Will play audio for:", wave_duration_ms / 1000, "seconds")
+
+        # Play Audio and Wait Section
+        # Play the audio to the desired duration
+        W.play_audio2(wave_snd, playback_time=wave_duration_ms)
+
+        # Actively wait the desired time (can press spacebar to end entire experiment)
+        # Note: if time_to_wait is negative because of random burst,
+        # function will run so fast that almost no time will go by.
+        wait_seconds(time_to_wait)
+
         if not is_running_experiment:
             print(event, "was pressed")
             print("Stopping experiment after playing current audio sample")
@@ -433,7 +637,7 @@ def start_experiment(window, event, values):
 
         current_time = time.monotonic()
         elapsed_time = current_time - start_time
-        print("elapsed_time:", elapsed_time, "second(s)")
+        print("Experiment elapsed_time:", elapsed_time, "second(s)")
 
     print(f"Experiment has run for {elapsed_time:.2f} seconds")
     # Convert seconds to hours
@@ -445,9 +649,6 @@ def start_experiment(window, event, values):
     min_elapsed = (hours_elapsed % 1) * 60
     print(f"or {hours_elapsed:.1f} hour(s) and {min_elapsed:.1f} minute(s)")
 
-    # TODO: Bug: When pressing Stop Experiment while Experiment is going on, then pressing "Play Audio Sample"
-    #            will cause this error to show up: "main thread is not in main loop"
-    # Possible solution: Only have one of these below, or disable "Play Audio" until this thread/loop is done.
     set_stop_experiment_variables_and_buttons(window)
 
     pass
@@ -488,6 +689,10 @@ def event_manager(window, event, values):
     # If Sine is selected, values[SINE] will be true.
     is_sine_wave = values[SINE]
 
+    p = Process()
+
+    print(RANDOM_BURST_KEY, ":", values[RANDOM_BURST_KEY])
+
     if event == PLAY_AUDIO_BUTTON:
         print("You pressed", event)
         # Where Tom's Code will be accessed.
@@ -510,16 +715,25 @@ def event_manager(window, event, values):
         # start_experiment(values)
         print(f"Will run experiment for {values[HOURS_EXP_KEY]} hour(s) and {values[MIN_EXP_KEY]} minute(s)")
 
+        # Thread Version
         experiment_thread = threading.Thread(target=start_experiment, args=(window, event, values), daemon=True)
         experiment_thread.start()
         # time.sleep(5)
+
+        # Process Version
+        # p = Process(target=start_experiment, args=(window, event, values,))
+        # p.start()
 
     elif event == STOP_EXPERIMENT:
         # set_stop_experiment_variables_and_buttons(window)
         is_running_experiment = False
         print("You pressed", event)
 
+        # Process Version
+        # p.terminate()
+
         # Stop experiment_thread (not needed, but line may be needed later for troubleshooting if it crashes).
+
         # experiment_thread.join(timeout=1)
     # TODO: Decide to keep or remove the following buttons (stop, plot):
     # elif event == STOP_BUTTON:
@@ -545,6 +759,7 @@ def main():
 
     # Create Window, call get_layout() to get layout.
     window = sg.Window('FlyShaker GUI', get_layout())
+
 
     # Initialize empty experiment_thread object, will be used with "Start Experiment" is pushed
     # experiment_thread = threading.Thread()
